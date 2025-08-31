@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Confessions - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container protected-content" style="margin-top: 100px; max-width: 1000px;">
+        <div class="page-header">
+            <h1>🤫 Anonymous Confession Wall</h1>
+            <p>Share your heart anonymously or read beautiful confessions from others</p>
+        </div>
+
+        <!-- Privacy Toggle -->
+        <div class="privacy-controls">
+            <h3>🔒 Your Privacy Settings</h3>
+            <div class="privacy-options">
+                <label class="privacy-option">
+                    <input type="radio" name="visibility" value="public" onchange="updateVisibility('public')">
+                    <span>🌍 Public - Anyone can see your confessions</span>
+                </label>
+                <label class="privacy-option">
+                    <input type="radio" name="visibility" value="private" onchange="updateVisibility('private')" checked>
+                    <span>🔒 Private - Only you can see your confessions</span>
+                </label>
+                <label class="privacy-option">
+                    <input type="radio" name="visibility" value="anonymous" onchange="updateVisibility('anonymous')">
+                    <span>👤 Anonymous - Visible to all but without your identity</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Add New Confession -->
+        <div class="add-confession-section">
+            <h3>✨ Share Your Heart</h3>
+            <form id="confession-form" class="confession-form">
+                <div class="form-group">
+                    <label for="confession-category">💭 Category</label>
+                    <select id="confession-category">
+                        <option value="love">💕 Love Declaration</option>
+                        <option value="crush">😍 Secret Crush</option>
+                        <option value="appreciation">🌟 Appreciation</option>
+                        <option value="regret">😔 Regret/Apology</option>
+                        <option value="gratitude">🙏 Gratitude</option>
+                        <option value="wish">⭐ Wish/Hope</option>
+                        <option value="memory">💭 Beautiful Memory</option>
+                        <option value="other">✨ Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="confession-text">💌 Your Confession</label>
+                    <textarea id="confession-text" placeholder="Share what's in your heart... Your identity will be protected based on your privacy settings." rows="6" required></textarea>
+                    <div class="character-count">
+                        <span id="char-count">0</span>/500 characters
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confession-mood">😊 Current Mood</label>
+                    <select id="confession-mood">
+                        <option value="">Select your mood...</option>
+                        <option value="happy">😊 Happy</option>
+                        <option value="excited">🤩 Excited</option>
+                        <option value="nervous">😰 Nervous</option>
+                        <option value="hopeful">🤞 Hopeful</option>
+                        <option value="sad">😢 Sad</option>
+                        <option value="grateful">🙏 Grateful</option>
+                        <option value="confused">🤔 Confused</option>
+                        <option value="peaceful">😌 Peaceful</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="allow-reactions">
+                        💖 Allow others to react to this confession
+                    </label>
+                </div>
+
+                <button type="submit" class="btn primary">🤫 Share Anonymously</button>
+            </form>
+        </div>
+
+        <!-- Confession Wall -->
+        <div class="confession-wall">
+            <div class="wall-header">
+                <h3>💌 Confession Wall</h3>
+                <div class="wall-filters">
+                    <button class="filter-btn active" onclick="filterConfessions('all')">All</button>
+                    <button class="filter-btn" onclick="filterConfessions('love')">💕 Love</button>
+                    <button class="filter-btn" onclick="filterConfessions('crush')">😍 Crush</button>
+                    <button class="filter-btn" onclick="filterConfessions('appreciation')">🌟 Appreciation</button>
+                    <button class="filter-btn" onclick="filterConfessions('recent')">⏰ Recent</button>
+                </div>
+            </div>
+
+            <div id="confessions-container" class="confessions-grid">
+                <!-- Confessions will be loaded here -->
+            </div>
+
+            <div id="no-confessions" class="empty-state" style="display: none;">
+                <div class="empty-icon">💌</div>
+                <h3>No confessions yet</h3>
+                <p>Be the first to share your heart on the confession wall!</p>
+            </div>
+        </div>
+
+        <!-- Your Confessions -->
+        <div class="my-confessions-section">
+            <h3>📝 Your Confessions</h3>
+            <div id="my-confessions-container" class="my-confessions-grid">
+                <!-- User's confessions will be loaded here -->
+            </div>
+
+            <div id="no-my-confessions" class="empty-state" style="display: none;">
+                <div class="empty-icon">📝</div>
+                <h3>You haven't shared any confessions yet</h3>
+                <p>Share your first confession above!</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="page-navigation">
+            <a href="dashboard.html" class="btn secondary">← Back to Dashboard</a>
+            <a href="quotes.html" class="btn primary">💬 Love Quotes</a>
+        </div>
+    </div>
+
+    <!-- Confession Detail Modal -->
+    <div id="confession-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💌 Confession Details</h3>
+                <span class="close" onclick="closeModal('confession-detail-modal')">&times;</span>
+            </div>
+            <div class="modal-body" id="confession-detail-content">
+                <!-- Confession details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+        import { db, collection, addDoc, query, where, orderBy, getDocs, updateDoc, doc } from './js/firebase-config.js';
+
+        let currentUser = null;
+        let allConfessions = [];
+        let myConfessions = [];
+        let currentFilter = 'all';
+        let userVisibility = 'private';
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        // Character counter
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'confession-text') {
+                const text = e.target.value;
+                const count = text.length;
+                document.getElementById('char-count').textContent = count;
+                
+                if (count > 500) {
+                    e.target.value = text.substring(0, 500);
+                    document.getElementById('char-count').textContent = 500;
+                }
+            }
+        });
+
+        window.updateVisibility = function(visibility) {
+            userVisibility = visibility;
+            // TODO: Update user preferences in Firebase
+            showToast(`Privacy setting updated to ${visibility}`, 'success');
+        };
+
+        async function handleConfessionSubmit(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('Please log in to share confessions!');
+                return;
+            }
+
+            const category = document.getElementById('confession-category').value;
+            const text = document.getElementById('confession-text').value.trim();
+            const mood = document.getElementById('confession-mood').value;
+            const allowReactions = document.getElementById('allow-reactions').checked;
+
+            if (!text) {
+                alert('Please write your confession!');
+                return;
+            }
+
+            try {
+                const confessionData = {
+                    userId: currentUser.uid,
+                    authorName: userVisibility === 'anonymous' ? 'Anonymous' : 
+                               userVisibility === 'public' ? (await authManager.getUserProfile()).displayName || 'Someone' : 'You',
+                    category: category,
+                    text: text,
+                    mood: mood || null,
+                    allowReactions: allowReactions,
+                    visibility: userVisibility,
+                    reactions: {
+                        heart: 0,
+                        smile: 0,
+                        support: 0,
+                        beautiful: 0
+                    },
+                    createdAt: new Date(),
+                    timestamp: new Date().toISOString()
+                };
+
+                await addDoc(collection(db, 'anonymousConfessions'), confessionData);
+                
+                // Reset form
+                document.getElementById('confession-form').reset();
+                document.getElementById('char-count').textContent = '0';
+                
+                // Reload confessions
+                await loadConfessions();
+                await loadMyConfessions();
+                
+                showToast('Confession shared successfully! 💕', 'success');
+                
+            } catch (error) {
+                console.error('Error sharing confession:', error);
+                showToast('Error sharing confession. Please try again.', 'error');
+            }
+        }
+
+        async function loadConfessions() {
+            if (!currentUser) return;
+
+            try {
+                // Load public and anonymous confessions
+                const confessionsQuery = query(
+                    collection(db, 'anonymousConfessions'),
+                    where('visibility', 'in', ['public', 'anonymous']),
+                    orderBy('createdAt', 'desc')
+                );
+                const confessionsSnapshot = await getDocs(confessionsQuery);
+                
+                allConfessions = [];
+                confessionsSnapshot.forEach((docSnap) => {
+                    allConfessions.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                displayConfessions();
+            } catch (error) {
+                console.error('Error loading confessions:', error);
+            }
+        }
+
+        async function loadMyConfessions() {
+            if (!currentUser) return;
+
+            try {
+                const myConfessionsQuery = query(
+                    collection(db, 'anonymousConfessions'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                const myConfessionsSnapshot = await getDocs(myConfessionsQuery);
+                
+                myConfessions = [];
+                myConfessionsSnapshot.forEach((docSnap) => {
+                    myConfessions.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                displayMyConfessions();
+            } catch (error) {
+                console.error('Error loading your confessions:', error);
+            }
+        }
+
+        function displayConfessions() {
+            const container = document.getElementById('confessions-container');
+            const noConfessionsDiv = document.getElementById('no-confessions');
+
+            let filteredConfessions = allConfessions;
+            
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'recent') {
+                    const oneDayAgo = new Date();
+                    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+                    filteredConfessions = allConfessions.filter(confession => 
+                        new Date(confession.createdAt.toDate()) > oneDayAgo
+                    );
+                } else {
+                    filteredConfessions = allConfessions.filter(confession => 
+                        confession.category === currentFilter
+                    );
+                }
+            }
+
+            if (filteredConfessions.length === 0) {
+                container.style.display = 'none';
+                noConfessionsDiv.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'grid';
+            noConfessionsDiv.style.display = 'none';
+            container.innerHTML = '';
+
+            filteredConfessions.forEach((confession) => {
+                const confessionCard = document.createElement('div');
+                confessionCard.className = 'confession-card';
+                
+                const createdDate = new Date(confession.createdAt.toDate());
+                const timeAgo = getTimeAgo(createdDate);
+
+                confessionCard.innerHTML = `
+                    <div class="confession-header">
+                        <div class="confession-category ${confession.category}">
+                            ${getCategoryEmoji(confession.category)} ${confession.category}
+                        </div>
+                        <div class="confession-author">
+                            👤 ${confession.authorName} ${confession.mood ? getMoodEmoji(confession.mood) : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="confession-content">
+                        <p>${confession.text}</p>
+                    </div>
+                    
+                    <div class="confession-footer">
+                        <div class="confession-time">⏰ ${timeAgo}</div>
+                        ${confession.allowReactions ? `
+                            <div class="confession-reactions">
+                                <button onclick="reactToConfession('${confession.id}', 'heart')" class="reaction-btn">
+                                    ❤️ ${confession.reactions?.heart || 0}
+                                </button>
+                                <button onclick="reactToConfession('${confession.id}', 'smile')" class="reaction-btn">
+                                    😊 ${confession.reactions?.smile || 0}
+                                </button>
+                                <button onclick="reactToConfession('${confession.id}', 'support')" class="reaction-btn">
+                                    🤗 ${confession.reactions?.support || 0}
+                                </button>
+                                <button onclick="reactToConfession('${confession.id}', 'beautiful')" class="reaction-btn">
+                                    ✨ ${confession.reactions?.beautiful || 0}
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                container.appendChild(confessionCard);
+            });
+        }
+
+        function displayMyConfessions() {
+            const container = document.getElementById('my-confessions-container');
+            const noConfessionsDiv = document.getElementById('no-my-confessions');
+
+            if (myConfessions.length === 0) {
+                container.style.display = 'none';
+                noConfessionsDiv.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'grid';
+            noConfessionsDiv.style.display = 'none';
+            container.innerHTML = '';
+
+            myConfessions.forEach((confession) => {
+                const confessionCard = document.createElement('div');
+                confessionCard.className = 'my-confession-card';
+                
+                const createdDate = new Date(confession.createdAt.toDate());
+
+                confessionCard.innerHTML = `
+                    <div class="confession-header">
+                        <div class="confession-category ${confession.category}">
+                            ${getCategoryEmoji(confession.category)} ${confession.category}
+                        </div>
+                        <div class="confession-visibility">
+                            ${getVisibilityIcon(confession.visibility)} ${confession.visibility}
+                        </div>
+                    </div>
+                    
+                    <div class="confession-content">
+                        <p>${confession.text}</p>
+                    </div>
+                    
+                    <div class="confession-footer">
+                        <div class="confession-time">📅 ${createdDate.toLocaleDateString()}</div>
+                        <div class="confession-stats">
+                            ${confession.allowReactions ? `
+                                Total reactions: ${Object.values(confession.reactions || {}).reduce((a, b) => a + b, 0)}
+                            ` : 'Reactions disabled'}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(confessionCard);
+            });
+        }
+
+        function getCategoryEmoji(category) {
+            const emojis = {
+                love: '💕',
+                crush: '😍',
+                appreciation: '🌟',
+                regret: '😔',
+                gratitude: '🙏',
+                wish: '⭐',
+                memory: '💭',
+                other: '✨'
+            };
+            return emojis[category] || '💌';
+        }
+
+        function getMoodEmoji(mood) {
+            const emojis = {
+                happy: '😊',
+                excited: '🤩',
+                nervous: '😰',
+                hopeful: '🤞',
+                sad: '😢',
+                grateful: '🙏',
+                confused: '🤔',
+                peaceful: '😌'
+            };
+            return emojis[mood] || '';
+        }
+
+        function getVisibilityIcon(visibility) {
+            const icons = {
+                public: '🌍',
+                private: '🔒',
+                anonymous: '👤'
+            };
+            return icons[visibility] || '🔒';
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+            
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}m ago`;
+            } else if (diffInMinutes < 1440) {
+                return `${Math.floor(diffInMinutes / 60)}h ago`;
+            } else {
+                return `${Math.floor(diffInMinutes / 1440)}d ago`;
+            }
+        }
+
+        window.filterConfessions = function(filter) {
+            currentFilter = filter;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayConfessions();
+        };
+
+        window.reactToConfession = async function(confessionId, reactionType) {
+            try {
+                const confessionRef = doc(db, 'anonymousConfessions', confessionId);
+                const confession = allConfessions.find(c => c.id === confessionId);
+                
+                if (!confession) return;
+
+                const updatedReactions = { ...confession.reactions };
+                updatedReactions[reactionType] = (updatedReactions[reactionType] || 0) + 1;
+
+                await updateDoc(confessionRef, { reactions: updatedReactions });
+                
+                // Update local data
+                confession.reactions = updatedReactions;
+                displayConfessions();
+                
+                showToast('Reaction added! 💖', 'success');
+            } catch (error) {
+                console.error('Error adding reaction:', error);
+                showToast('Error adding reaction', 'error');
+            }
+        };
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        };
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                if (currentUser) {
+                    loadConfessions();
+                    loadMyConfessions();
+                }
+            }, 1000);
+
+            // Event listeners
+            document.getElementById('confession-form').addEventListener('submit', handleConfessionSubmit);
+        });
+    </script>
+
+    <style>
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .page-header h1 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 10px;
+        }
+
+        .privacy-controls {
+            background: rgba(255, 248, 225, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ff9800;
+        }
+
+        .privacy-controls h3 {
+            color: #f57c00;
+            margin-bottom: 20px;
+        }
+
+        .privacy-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .privacy-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .privacy-option:hover {
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .add-confession-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-confession-section h3 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 25px;
+        }
+
+        .confession-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+        }
+
+        .character-count {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .confession-wall,
+        .my-confessions-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .wall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .wall-header h3,
+        .my-confessions-section h3 {
+            color: var(--primary-color, #ff6b9d);
+            margin: 0;
+        }
+
+        .wall-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--primary-color, #ff6b9d);
+            background: transparent;
+            color: var(--primary-color, #ff6b9d);
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+        }
+
+        .confessions-grid,
+        .my-confessions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .confession-card,
+        .my-confession-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid rgba(255, 107, 157, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .confession-card:hover,
+        .my-confession-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.2);
+        }
+
+        .confession-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+
+        .confession-category {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .confession-category.love { background: rgba(233, 30, 99, 0.2); }
+        .confession-category.crush { background: rgba(255, 193, 7, 0.2); }
+        .confession-category.appreciation { background: rgba(76, 175, 80, 0.2); }
+        .confession-category.regret { background: rgba(96, 125, 139, 0.2); }
+        .confession-category.gratitude { background: rgba(156, 39, 176, 0.2); }
+
+        .confession-author,
+        .confession-visibility {
+            color: #666;
+            font-weight: bold;
+        }
+
+        .confession-content {
+            margin-bottom: 15px;
+        }
+
+        .confession-content p {
+            color: #333;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .confession-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .confession-time {
+            color: #666;
+        }
+
+        .confession-reactions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reaction-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 107, 157, 0.1);
+            color: #333;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .reaction-btn:hover {
+            background: rgba(255, 107, 157, 0.2);
+            transform: scale(1.1);
+        }
+
+        .confession-stats {
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .wall-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .wall-filters {
+                justify-content: center;
+            }
+
+            .confessions-grid,
+            .my-confessions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-navigation {
+                flex-direction: column;
+            }
+
+            .privacy-options {
+                gap: 10px;
+            }
+
+            .confession-footer {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</body>
+</html>

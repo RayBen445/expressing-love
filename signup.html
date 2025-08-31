@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto" style="display: none;">
+        <source src="https://files.catbox.moe/4vb6xe.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <div class="container auth-container">
+        <div class="auth-card">
+            <h1>💖 Join the Love Journey! 💖</h1>
+            <p>Create your account to start expressing love</p>
+
+            <div id="auth-message" class="auth-message"></div>
+
+            <form id="signup-form" class="auth-form">
+                <div class="form-group">
+                    <input type="text" id="displayName" placeholder="Your display name" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Create a password (min 6 characters)" required minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirm your password" required minlength="6">
+                </div>
+                
+                <button type="submit" class="auth-btn primary">
+                    ✨ Create Account
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <button onclick="signInWithGoogle()" class="auth-btn google">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="18">
+                Sign up with Google
+            </button>
+
+            <div class="auth-links">
+                <p>Already have an account? <a href="login.html">Sign in here</a></p>
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        function showMessage(message, type = 'error') {
+            const messageDiv = document.getElementById('auth-message');
+            messageDiv.textContent = message;
+            messageDiv.className = `auth-message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            
+            const displayName = document.getElementById('displayName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!displayName || !email || !password || !confirmPassword) {
+                showMessage('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters');
+                return;
+            }
+            
+            const result = await authManager.signUp(email, password, displayName);
+            
+            if (result.success) {
+                showMessage('Account created successfully! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                showMessage(result.error);
+            }
+        }
+
+        window.signInWithGoogle = async function() {
+            const result = await authManager.signInWithGoogle();
+            
+            if (result.success) {
+                showMessage('Welcome! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                showMessage(result.error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            document.getElementById('signup-form').addEventListener('submit', handleSignup);
+        });
+    </script>
+
+    <script>
+        // Background music handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            
+            function playMusic() {
+              if (music) {
+                music.volume = 0.3; // Set to 30% volume
+                music.play().then(() => {
+                  console.log('Background music started playing');
+                }).catch(error => {
+                  console.log('Could not autoplay audio:', error);
+                  // Create a click listener to play music after user interaction
+                  document.addEventListener('click', function playOnClick() {
+                    music.play().then(() => {
+                      console.log('Background music started after user click');
+                      document.removeEventListener('click', playOnClick);
+                    }).catch(err => console.log('Still could not play audio:', err));
+                  }, { once: true });
+                });
+              }
+            }
+            
+            // Try to play music immediately
+            playMusic();
+            
+            // Also try when page becomes visible (in case user switches tabs)
+            document.addEventListener('visibilitychange', function() {
+              if (!document.hidden && music && music.paused) {
+                playMusic();
+              }
+            });
+        });
+    </script>
+</body>
+</html>
