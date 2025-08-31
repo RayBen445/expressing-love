@@ -136,6 +136,7 @@
         <div class="features-nav">
           <a href="quiz.html" class="feature-btn">💕 Compatibility Quiz</a>
           <a href="memory-book.html" class="feature-btn">📖 Memory Book</a>
+          <a href="date-calculator.html" class="feature-btn">📅 Date Calculator</a>
           <a href="dashboard.html" class="feature-btn">📊 Dashboard</a>
         </div>
       </div>
@@ -320,7 +321,10 @@
                 
                 await addDoc(collection(db, 'confessions'), confessionData);
                 
-                alert('Confession sent successfully! 💖');
+                // Send to Telegram
+                await sendToTelegram(confessionData);
+                
+                alert('Confession sent successfully! 💖 You will also receive a notification on Telegram!');
                 
                 // Navigate to appropriate page after successful send
                 if (answer === 'Yes') {
@@ -333,6 +337,89 @@
                 console.error('Error:', error);
             }
         };
+
+        // Send confession details to Telegram
+        async function sendToTelegram(confessionData) {
+            try {
+                // Telegram Bot Configuration
+                const TELEGRAM_BOT_TOKEN = '7806244063:AAFggXD0dv5Q9k-MUk5GCkuWrBhOOCGDNvo';
+                const TELEGRAM_CHAT_ID = '5901901892'; // Your Telegram chat ID
+                
+                // Format the message
+                let message = `🌹 *NEW LOVE CONFESSION RECEIVED* 🌹\n\n`;
+                message += `💕 **Name:** ${confessionData.userName}\n`;
+                message += `📱 **Phone:** ${confessionData.userPhone}\n`;
+                message += `💖 **Response:** ${confessionData.response}\n`;
+                
+                if (confessionData.customMessage) {
+                    message += `💌 **Custom Message:** ${confessionData.customMessage}\n`;
+                }
+                
+                if (confessionData.romanticQuote) {
+                    message += `💝 **Romantic Quote:** ${confessionData.romanticQuote}\n`;
+                }
+                
+                if (confessionData.specialDate) {
+                    const date = new Date(confessionData.specialDate);
+                    message += `📅 **Special Date:** ${date.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}\n`;
+                }
+                
+                message += `🎨 **Theme:** ${confessionData.theme}\n`;
+                message += `⏰ **Time:** ${new Date().toLocaleString()}\n`;
+                message += `🆔 **User ID:** ${confessionData.userId}\n`;
+                
+                if (confessionData.photoURL) {
+                    message += `📸 **Photo:** Attached below\n`;
+                }
+                
+                message += `\n💕 Sent from Expressing Love Platform`;
+
+                // Send text message
+                const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                const response = await fetch(telegramUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to send message to Telegram');
+                    return;
+                }
+
+                // Send photo if available
+                if (confessionData.photoURL) {
+                    const photoUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+                    await fetch(photoUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            photo: confessionData.photoURL,
+                            caption: `📸 Special photo from ${confessionData.userName}'s love confession`
+                        })
+                    });
+                }
+
+                console.log('Successfully sent confession to Telegram');
+            } catch (error) {
+                console.error('Error sending to Telegram:', error);
+                // Don't throw error to prevent breaking the main flow
+            }
+        }
 
         window.handleNo = async function() {
             if (!currentUser) {

@@ -29,6 +29,14 @@ A comprehensive web application for expressing love and creating beautiful roman
 - **Voice Messages**: Placeholder for future Web Audio API integration
 - **Social Sharing**: Share confessions on Facebook, Twitter, Instagram
 - **QR Code Generation**: Generate QR codes for easy sharing
+- **Telegram Integration**: Automatic notification to owner's Telegram with full confession details
+
+#### 📅 Date Calculator (NEW!)
+- **Relationship Duration Calculator**: Calculate exact time together down to minutes
+- **Anniversary Milestone Tracker**: Find all important anniversary dates
+- **Age Difference Calculator**: Calculate age gap between partners
+- **Next Anniversary Countdown**: Real-time countdown to upcoming anniversaries
+- **Special Date Analysis**: Comprehensive relationship timeline analysis
 
 #### 💬 Love Quotes
 - **Quote Categories**: Romantic, Cute, Deep, and Funny quotes
@@ -51,7 +59,7 @@ A comprehensive web application for expressing love and creating beautiful roman
 - **Mood Tracking**: Select emotional context for each memory
 - **Memory Export**: Feature for exporting memories (scaffolded)
 
-#### 📅 Anniversary Reminders
+#### 🔔 Anniversary Reminders
 - **Smart Reminders**: Never miss important dates
 - **Multiple Categories**: Anniversary, Birthday, First Date, Engagement, etc.
 - **Advance Notifications**: Set reminder timing (1 day to 1 month in advance)
@@ -69,12 +77,14 @@ A comprehensive web application for expressing love and creating beautiful roman
 
 ### 🛠️ Technical Features
 - **Firebase Integration**: Complete backend with Firestore and Authentication
+- **Telegram Bot Integration**: Real-time notifications for new confessions
 - **Responsive Design**: Mobile-first responsive design
 - **Progressive Enhancement**: Works without JavaScript (basic functionality)
 - **Real-time Updates**: Firebase real-time database integration
 - **Image Upload**: Firebase Storage for profile pictures and memory photos
 - **Data Privacy**: User data isolation and privacy controls
 - **Error Handling**: Comprehensive error handling and user feedback
+- **Vercel Ready**: Optimized for Vercel deployment
 
 ### 🎨 UI/UX Features
 - **Floating Hearts Animation**: Beautiful background animations
@@ -89,6 +99,7 @@ A comprehensive web application for expressing love and creating beautiful roman
 ### Prerequisites
 - Modern web browser with ES6+ support
 - Firebase project (for backend functionality)
+- Telegram Bot Token (for notifications)
 - Web server (for local development)
 
 ### 1. Firebase Setup
@@ -192,11 +203,50 @@ A comprehensive web application for expressing love and creating beautiful roman
 3. Initialize: `firebase init hosting`
 4. Deploy: `firebase deploy`
 
+#### Vercel (Recommended for Production)
+1. **Install Vercel CLI**: `npm i -g vercel`
+2. **Deploy to Vercel**:
+   ```bash
+   vercel
+   ```
+3. **Environment Variables**: Set up your Firebase config as environment variables in Vercel dashboard:
+   - `FIREBASE_API_KEY`
+   - `FIREBASE_AUTH_DOMAIN`
+   - `FIREBASE_PROJECT_ID`
+   - `FIREBASE_STORAGE_BUCKET`
+   - `FIREBASE_MESSAGING_SENDER_ID`
+   - `FIREBASE_APP_ID`
+
+4. **Custom Domain**: Configure your custom domain in Vercel dashboard
+
 #### GitHub Pages
 1. Push your code to a GitHub repository
 2. Go to repository Settings > Pages
 3. Select source branch (usually `main`)
 4. Your site will be available at `https://username.github.io/repository-name`
+
+### 3. Telegram Bot Setup (Optional)
+
+To enable Telegram notifications for new confessions:
+
+1. **Create Telegram Bot**:
+   - Message [@BotFather](https://t.me/botfather) on Telegram
+   - Use `/newbot` command and follow instructions
+   - Save your bot token
+
+2. **Get Chat ID**:
+   - Start a conversation with your bot
+   - Send a message to your bot
+   - Visit: `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
+   - Find your chat ID in the response
+
+3. **Update Configuration**:
+   - Open `confession.html`
+   - Update the Telegram configuration in the `sendToTelegram` function:
+   ```javascript
+   const TELEGRAM_BOT_TOKEN = 'your-bot-token-here';
+   const TELEGRAM_CHAT_ID = 'your-chat-id-here';
+   ```
 
 ## 📁 File Structure
 
@@ -208,13 +258,17 @@ expressing-love/
 ├── dashboard.html          # User dashboard
 ├── profile.html            # Profile management page
 ├── confession.html         # Love confession feature
+├── date-calculator.html    # Date calculator and relationship tools
 ├── quotes.html             # Love quotes management
 ├── quiz.html               # Compatibility quiz
 ├── memory-book.html        # Memory book feature
 ├── reminders.html          # Anniversary reminders
 ├── gifts.html              # Virtual gifts feature
+├── voice-messages.html     # Voice messages (scaffold)
+├── confessions.html        # Anonymous confession wall
 ├── style.css               # Main stylesheet
 ├── script.js               # Main JavaScript utilities
+├── vercel.json             # Vercel deployment configuration
 ├── css/
 │   ├── auth.css           # Authentication pages styles
 │   ├── dashboard.css      # Dashboard and navigation styles
@@ -243,12 +297,6 @@ Edit CSS custom properties in any stylesheet:
 3. Add navigation links in dashboard and other relevant pages
 4. Follow existing coding patterns and styles
 
-### Telegram Integration (Optional)
-The app includes optional Telegram bot integration for notifications:
-1. Create a Telegram bot via [@BotFather](https://t.me/botfather)
-2. Update bot token and chat ID in relevant files
-3. This feature works alongside Firebase and can be disabled if not needed
-
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -268,10 +316,20 @@ The app includes optional Telegram bot integration for notifications:
    - Verify OAuth redirect URIs are configured
    - Test with valid email formats
 
-4. **Responsive Design Issues**:
+4. **Telegram Integration Issues**:
+   - Verify bot token and chat ID are correct
+   - Check if bot can send messages to the chat
+   - Ensure CORS allows requests to Telegram API
+
+5. **Responsive Design Issues**:
    - Test on various screen sizes
    - Check CSS media queries
    - Verify viewport meta tag is present
+
+6. **Vercel Deployment Issues**:
+   - Ensure all file paths are correct and case-sensitive
+   - Check build logs in Vercel dashboard
+   - Verify all dependencies are properly configured
 
 ### Performance Tips
 
@@ -284,6 +342,11 @@ The app includes optional Telegram bot integration for notifications:
    - Use Firebase offline persistence
    - Implement pagination for large data sets
    - Optimize Firestore queries with indexes
+
+3. **Vercel Optimization**:
+   - Enable caching headers in `vercel.json`
+   - Use Vercel's built-in image optimization
+   - Implement proper SEO meta tags
 
 ## 🤝 Contributing
 

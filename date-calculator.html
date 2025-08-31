@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Calculator - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+    <style>
+        .calculator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .calc-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calc-section h3 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .date-inputs {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .date-input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .date-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .date-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .date-input input:focus {
+            border-color: var(--primary-color, #ff6b9d);
+            outline: none;
+        }
+        
+        .calc-btn {
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 15px auto;
+        }
+        
+        .calc-btn:hover {
+            background: var(--secondary-color, #ff9a9e);
+            transform: translateY(-2px);
+        }
+        
+        .result-display {
+            background: linear-gradient(45deg, #ff6b9d, #ff9a9e);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .result-item .number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .result-item .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .milestone-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .milestone-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .milestone-date {
+            font-weight: bold;
+        }
+        
+        .milestone-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .upcoming-events {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .past-events {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        @media (max-width: 600px) {
+            .date-inputs {
+                flex-direction: column;
+            }
+            
+            .result-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="calculator-container protected-content">
+        <h1>💕 Love Date Calculator</h1>
+        <p>Calculate special moments and milestones in your relationship</p>
+        
+        <!-- Relationship Duration Calculator -->
+        <div class="calc-section">
+            <h3>📅 Relationship Duration</h3>
+            <p>Calculate how long you've been together</p>
+            
+            <div class="date-inputs">
+                <div class="date-input">
+                    <label for="startDate">💕 Relationship Start Date:</label>
+                    <input type="date" id="startDate" max="">
+                </div>
+                <div class="date-input">
+                    <label for="endDate">📅 Calculate Until Date:</label>
+                    <input type="date" id="endDate" max="">
+                </div>
+            </div>
+            
+            <button class="calc-btn" onclick="calculateDuration()">💖 Calculate Duration</button>
+            
+            <div id="durationResult" class="result-display" style="display: none;">
+                <div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <span class="number" id="totalDays">0</span>
+                            <span class="label">Total Days</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number" id="years">0</span>
+                            <span class="label">Years</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number" id="months">0</span>
+                            <span class="label">Months</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number" id="days">0</span>
+                            <span class="label">Days</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number" id="hours">0</span>
+                            <span class="label">Hours</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number" id="minutes">0</span>
+                            <span class="label">Minutes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anniversary Calculator -->
+        <div class="calc-section">
+            <h3>🎉 Anniversary Milestones</h3>
+            <p>Find all your special anniversary dates</p>
+            
+            <div class="date-inputs">
+                <div class="date-input">
+                    <label for="anniversaryStart">💕 Anniversary Date:</label>
+                    <input type="date" id="anniversaryStart" max="">
+                </div>
+            </div>
+            
+            <button class="calc-btn" onclick="calculateAnniversaries()">🎊 Find Anniversaries</button>
+            
+            <div id="anniversaryResult" class="result-display" style="display: none;">
+                <div>
+                    <h4>🎉 Upcoming Milestones</h4>
+                    <div id="upcomingMilestones" class="milestone-list"></div>
+                    <h4>📖 Past Celebrations</h4>
+                    <div id="pastMilestones" class="milestone-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Age Difference Calculator -->
+        <div class="calc-section">
+            <h3>👫 Age Difference Calculator</h3>
+            <p>Calculate the age difference between you and your partner</p>
+            
+            <div class="date-inputs">
+                <div class="date-input">
+                    <label for="birthDate1">🎂 Your Birth Date:</label>
+                    <input type="date" id="birthDate1" max="">
+                </div>
+                <div class="date-input">
+                    <label for="birthDate2">🎂 Partner's Birth Date:</label>
+                    <input type="date" id="birthDate2" max="">
+                </div>
+            </div>
+            
+            <button class="calc-btn" onclick="calculateAgeDifference()">💑 Calculate Age Gap</button>
+            
+            <div id="ageDifferenceResult" class="result-display" style="display: none;"></div>
+        </div>
+
+        <!-- Next Anniversary Countdown -->
+        <div class="calc-section">
+            <h3>⏰ Next Anniversary Countdown</h3>
+            <p>Countdown to your next anniversary</p>
+            
+            <div class="date-inputs">
+                <div class="date-input">
+                    <label for="countdownDate">💕 Anniversary Date:</label>
+                    <input type="date" id="countdownDate">
+                </div>
+            </div>
+            
+            <button class="calc-btn" onclick="startCountdown()">⏰ Start Countdown</button>
+            
+            <div id="countdownResult" class="result-display" style="display: none;">
+                <div id="countdownTimer" style="font-size: 24px;"></div>
+                <div id="countdownMessage" style="margin-top: 10px; font-size: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- Navigation Back -->
+        <div class="features-section">
+            <div class="features-nav">
+                <a href="dashboard.html" class="feature-btn">📊 Back to Dashboard</a>
+                <a href="confession.html" class="feature-btn">💌 Love Confession</a>
+                <a href="reminders.html" class="feature-btn">🔔 Set Reminders</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading for users who aren't logged in -->
+    <div id="login-required" class="login-required" style="display: none;">
+        <div class="login-card">
+            <h2>💕 Join the Love Journey!</h2>
+            <p>Please log in or sign up to access the date calculator</p>
+            <div class="login-actions">
+                <a href="login.html" class="btn primary">🔐 Login</a>
+                <a href="signup.html" class="btn secondary">✨ Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+        let currentUser = null;
+        let countdownInterval = null;
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        // Set max dates to today
+        function setMaxDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').max = today;
+            document.getElementById('endDate').max = today;
+            document.getElementById('anniversaryStart').max = today;
+            document.getElementById('birthDate1').max = today;
+            document.getElementById('birthDate2').max = today;
+            
+            // Set default end date to today
+            document.getElementById('endDate').value = today;
+        }
+
+        // Calculate relationship duration
+        window.calculateDuration = function() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            if (!startDate || !endDate) {
+                alert('Please select both dates! 💕');
+                return;
+            }
+            
+            if (startDate > endDate) {
+                alert('Start date cannot be later than end date! 📅');
+                return;
+            }
+            
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            const years = Math.floor(totalDays / 365);
+            const months = Math.floor((totalDays % 365) / 30);
+            const days = totalDays % 30;
+            const hours = Math.floor((timeDiff % (1000 * 3600 * 24)) / (1000 * 3600)) + (totalDays * 24);
+            const minutes = Math.floor((timeDiff % (1000 * 3600)) / (1000 * 60)) + (totalDays * 24 * 60);
+            
+            document.getElementById('totalDays').textContent = totalDays.toLocaleString();
+            document.getElementById('years').textContent = years;
+            document.getElementById('months').textContent = months;
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours.toLocaleString();
+            document.getElementById('minutes').textContent = minutes.toLocaleString();
+            
+            document.getElementById('durationResult').style.display = 'block';
+        };
+
+        // Calculate anniversaries
+        window.calculateAnniversaries = function() {
+            const startDate = new Date(document.getElementById('anniversaryStart').value);
+            
+            if (!startDate) {
+                alert('Please select your anniversary date! 💕');
+                return;
+            }
+            
+            const today = new Date();
+            const upcomingContainer = document.getElementById('upcomingMilestones');
+            const pastContainer = document.getElementById('pastMilestones');
+            
+            upcomingContainer.innerHTML = '';
+            pastContainer.innerHTML = '';
+            
+            // Calculate milestone anniversaries
+            const milestones = [
+                { years: 0, months: 1, desc: 'One Month Together' },
+                { years: 0, months: 3, desc: 'Three Months Together' },
+                { years: 0, months: 6, desc: 'Half Year Together' },
+                { years: 1, months: 0, desc: 'First Anniversary' },
+                { years: 2, months: 0, desc: 'Two Years Together' },
+                { years: 3, months: 0, desc: 'Three Years Together' },
+                { years: 5, months: 0, desc: 'Five Years Together' },
+                { years: 10, months: 0, desc: 'Ten Years Together' },
+                { years: 15, months: 0, desc: 'Fifteen Years Together' },
+                { years: 20, months: 0, desc: 'Twenty Years Together' },
+                { years: 25, months: 0, desc: 'Silver Anniversary (25 Years)' },
+                { years: 50, months: 0, desc: 'Golden Anniversary (50 Years)' }
+            ];
+            
+            milestones.forEach(milestone => {
+                const anniversaryDate = new Date(startDate);
+                anniversaryDate.setFullYear(anniversaryDate.getFullYear() + milestone.years);
+                anniversaryDate.setMonth(anniversaryDate.getMonth() + milestone.months);
+                
+                const milestoneDiv = document.createElement('div');
+                milestoneDiv.className = 'milestone-item';
+                
+                const dateStr = anniversaryDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                milestoneDiv.innerHTML = `
+                    <div>
+                        <div class="milestone-date">${dateStr}</div>
+                        <div class="milestone-desc">${milestone.desc}</div>
+                    </div>
+                `;
+                
+                if (anniversaryDate > today) {
+                    milestoneDiv.classList.add('upcoming-events');
+                    upcomingContainer.appendChild(milestoneDiv);
+                } else {
+                    milestoneDiv.classList.add('past-events');
+                    pastContainer.appendChild(milestoneDiv);
+                }
+            });
+            
+            document.getElementById('anniversaryResult').style.display = 'block';
+        };
+
+        // Calculate age difference
+        window.calculateAgeDifference = function() {
+            const birthDate1 = new Date(document.getElementById('birthDate1').value);
+            const birthDate2 = new Date(document.getElementById('birthDate2').value);
+            
+            if (!birthDate1 || !birthDate2) {
+                alert('Please enter both birth dates! 🎂');
+                return;
+            }
+            
+            const ageDiff = Math.abs(birthDate2.getTime() - birthDate1.getTime());
+            const years = Math.floor(ageDiff / (1000 * 3600 * 24 * 365.25));
+            const months = Math.floor((ageDiff % (1000 * 3600 * 24 * 365.25)) / (1000 * 3600 * 24 * 30.44));
+            const days = Math.floor((ageDiff % (1000 * 3600 * 24 * 30.44)) / (1000 * 3600 * 24));
+            
+            const older = birthDate1 < birthDate2 ? 'You are' : 'Your partner is';
+            
+            document.getElementById('ageDifferenceResult').innerHTML = `
+                <div>
+                    <div style="font-size: 24px; margin-bottom: 10px;">
+                        👫 ${older} older by:
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <span class="number">${years}</span>
+                            <span class="label">Years</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number">${months}</span>
+                            <span class="label">Months</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="number">${days}</span>
+                            <span class="label">Days</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('ageDifferenceResult').style.display = 'block';
+        };
+
+        // Start countdown to anniversary
+        window.startCountdown = function() {
+            const countdownDate = new Date(document.getElementById('countdownDate').value);
+            
+            if (!countdownDate) {
+                alert('Please select an anniversary date! 💕');
+                return;
+            }
+            
+            // Clear any existing countdown
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            document.getElementById('countdownResult').style.display = 'block';
+            
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = countdownDate.getTime() - now;
+                
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdownTimer').innerHTML = '🎉 Happy Anniversary! 🎉';
+                    document.getElementById('countdownMessage').innerHTML = 'The special day is here! Time to celebrate! 💕';
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdownTimer').innerHTML = 
+                    `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                document.getElementById('countdownMessage').innerHTML = 
+                    `Until your special anniversary! 💕`;
+            }, 1000);
+        };
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            setMaxDates();
+            
+            // Wait for auth state to be determined
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                
+                if (!currentUser) {
+                    // Show login required message for non-authenticated users
+                    document.getElementById('login-required').style.display = 'flex';
+                } else {
+                    // Pre-fill dates if user has profile data
+                    authManager.getUserProfile().then(profile => {
+                        if (profile && profile.birthday) {
+                            document.getElementById('birthDate1').value = profile.birthday;
+                        }
+                    });
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
