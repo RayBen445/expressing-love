@@ -118,7 +118,7 @@
             }
         }
 
-        function showResults() {
+        async function showResults() {
             document.getElementById('quiz-container').style.display = 'none';
             document.getElementById('quiz-result').style.display = 'block';
 
@@ -168,6 +168,9 @@
                     </div>
                 `;
             }, 1000);
+
+            // Send quiz results to Telegram
+            await sendQuizResultsToTelegram(score, message);
         }
 
         function calculateCompatibility() {
@@ -210,6 +213,91 @@
             
             // Show first question
             document.getElementById('question-1').classList.add('active');
+        }
+
+        async function sendQuizResultsToTelegram(score, compatibilityMessage) {
+            const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
+            const chatId = '6649936329';
+
+            // Create detailed quiz results message
+            const questionTexts = {
+                1: "🌟 Ideal date preference",
+                2: "💖 Love expression style", 
+                3: "🎵 Love song preference",
+                4: "🌍 Dream destination together",
+                5: "💝 What makes heart flutter"
+            };
+
+            const answerTexts = {
+                'romantic': '🌹 Romantic dinner',
+                'adventure': '🏔️ Outdoor adventure', 
+                'cozy': '🏠 Cozy movie night',
+                'cultural': '🎭 Cultural event',
+                'words': '💬 Words of affirmation',
+                'touch': '🤗 Physical touch',
+                'gifts': '🎁 Giving gifts',
+                'time': '⏰ Quality time',
+                'classic': '🎼 Classic romantic ballad',
+                'modern': '🎤 Modern pop love song',
+                'jazz': '🎷 Smooth jazz',
+                'acoustic': '🎸 Acoustic serenade',
+                'beach': '🏖️ Tropical beach',
+                'city': '🏙️ Romantic city',
+                'mountains': '⛰️ Mountain retreat',
+                'countryside': '🌾 Peaceful countryside',
+                'surprise': '🎉 Sweet surprises',
+                'laugh': '😂 Making each other laugh',
+                'deep': '💭 Deep conversations',
+                'shared': '🚀 Shared adventures'
+            };
+
+            let quizAnswersText = '';
+            for (let i = 1; i <= 5; i++) {
+                quizAnswersText += `${questionTexts[i]}: ${answerTexts[answers[i]] || answers[i]}\n`;
+            }
+
+            const telegramMessage = `💕✨ COMPATIBILITY QUIZ COMPLETED! ✨💕
+
+🎯 Someone just took the Love Compatibility Quiz!
+
+═══ 📊 QUIZ RESULTS ═══
+💯 Compatibility Score: ${score}%
+🎭 Result: ${compatibilityMessage}
+
+═══ 📋 DETAILED ANSWERS ═══
+${quizAnswersText}
+⏰ Completed: ${new Date().toLocaleString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+})}
+
+💖 This quiz helps understand romantic compatibility!
+🌟 Someone is exploring their love potential! ✨
+
+#CompatibilityQuiz #LoveAnalysis #ExpressingLove`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: telegramMessage
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to send quiz results to Telegram');
+                }
+            } catch (error) {
+                console.error('Error sending quiz results to Telegram:', error);
+            }
         }
 
         // Initialize the quiz

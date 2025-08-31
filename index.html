@@ -393,7 +393,7 @@ ${photoInfo}
       }
 
       // Response tracking dashboard
-      function openTrackingDashboard() {
+      async function openTrackingDashboard() {
         const responses = JSON.parse(localStorage.getItem('loveResponses')) || [];
         
         let html = `
@@ -418,12 +418,88 @@ ${photoInfo}
         dashboardDiv.innerHTML = html;
         dashboardDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; text-align: center;';
         document.body.appendChild(dashboardDiv);
+
+        // Send response tracker summary to Telegram
+        await sendResponseTrackerToTelegram(responses);
       }
 
       // Initialize the app
       document.addEventListener('DOMContentLoaded', function() {
         createFloatingHearts();
       });
+
+      async function sendResponseTrackerToTelegram(responses) {
+        const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
+        const chatId = '6649936329';
+
+        const yesResponses = responses.filter(r => r.response === 'Yes').length;
+        const noResponses = responses.filter(r => r.response === 'No').length;
+        const totalResponses = responses.length;
+        
+        // Calculate success rate
+        const successRate = totalResponses > 0 ? ((yesResponses / totalResponses) * 100).toFixed(1) : '0';
+        
+        // Get recent responses (last 5)
+        const recentResponses = responses.slice(-5).reverse();
+        let recentActivity = '';
+        
+        if (recentResponses.length > 0) {
+          recentActivity = '\n═══ 🕐 RECENT ACTIVITY ═══\n';
+          recentResponses.forEach((response, index) => {
+            const date = new Date(response.timestamp).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            });
+            const emoji = response.response === 'Yes' ? '💚' : '💙';
+            recentActivity += `${emoji} ${response.name} - ${response.response} (${date})\n`;
+          });
+        }
+
+        const telegramMessage = `📊✨ RESPONSE TRACKER ACCESSED! ✨📊
+
+🎯 Someone just viewed the Response Tracking Dashboard!
+
+═══ 📈 ANALYTICS SUMMARY ═══
+✅ Yes Responses: ${yesResponses}
+❌ No Responses: ${noResponses} 
+📊 Total Confessions: ${totalResponses}
+💘 Success Rate: ${successRate}%
+
+${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+})}
+
+📈 Someone is tracking their love confession performance!
+💖 Analytics help understand romantic patterns! ✨
+
+#ResponseTracker #Analytics #ExpressingLove #LoveStats`;
+
+        try {
+          const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: telegramMessage
+            })
+          });
+
+          if (!response.ok) {
+            console.error('Failed to send response tracker data to Telegram');
+          }
+        } catch (error) {
+          console.error('Error sending response tracker data to Telegram:', error);
+        }
+      }
     </script>
   </body>
 </html>
