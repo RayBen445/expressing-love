@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="./css/auth.css" />
   </head>
   <body>
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto" style="display: none;">
+        <source src="https://files.catbox.moe/4vb6xe.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
     <!-- Animated floating hearts background -->
     <div class="hearts-container" id="hearts-container"></div>
 
@@ -516,6 +522,42 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
           console.error('Error sending response tracker data to Telegram:', error);
         }
       }
+    </script>
+
+    <script>
+      // Background music handler
+      document.addEventListener('DOMContentLoaded', function() {
+        const music = document.getElementById('backgroundMusic');
+        
+        // Function to play music
+        function playMusic() {
+          if (music) {
+            music.volume = 0.3; // Set to 30% volume
+            music.play().then(() => {
+              console.log('Background music started playing');
+            }).catch(error => {
+              console.log('Could not autoplay audio:', error);
+              // Create a click listener to play music after user interaction
+              document.addEventListener('click', function playOnClick() {
+                music.play().then(() => {
+                  console.log('Background music started after user click');
+                  document.removeEventListener('click', playOnClick);
+                }).catch(err => console.log('Still could not play audio:', err));
+              }, { once: true });
+            });
+          }
+        }
+        
+        // Try to play music immediately
+        playMusic();
+        
+        // Also try when page becomes visible (in case user switches tabs)
+        document.addEventListener('visibilitychange', function() {
+          if (!document.hidden && music && music.paused) {
+            playMusic();
+          }
+        });
+      });
     </script>
 
     <!-- Firebase Authentication Integration -->
