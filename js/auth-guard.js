@@ -44,12 +44,25 @@ class AuthGuard {
     }
 
     async waitForFirebaseAuth() {
-        // Firebase modules are imported, set up auth state listener directly
-        onAuthStateChanged(auth, (user) => {
-            this.currentUser = user;
-            this.isAuthChecking = false;
-            this.handleAuthStateChange();
-        });
+        try {
+            // Wait a bit for Firebase to load
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Firebase modules are imported, set up auth state listener directly
+            onAuthStateChanged(auth, (user) => {
+                this.currentUser = user;
+                this.isAuthChecking = false;
+                this.handleAuthStateChange();
+            });
+        } catch (error) {
+            console.warn('Firebase Auth not available:', error);
+            // Wait a reasonable time then proceed without auth
+            setTimeout(() => {
+                this.isAuthChecking = false;
+                this.currentUser = null;
+                this.handleAuthStateChange();
+            }, 1500); // Show loading for 1.5 seconds then proceed
+        }
     }
 
     showLoadingSpinner() {
