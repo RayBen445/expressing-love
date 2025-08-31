@@ -3,14 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Compatibility Quiz</title>
+    <title>Love Compatibility Quiz - Expressing Love</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
 </head>
 <body>
     <!-- Animated floating hearts background -->
     <div class="hearts-container" id="hearts-container"></div>
 
-    <div class="container">
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container protected-content">
         <h1>💕 Love Compatibility Quiz 💕</h1>
         <p>Discover how compatible you are with your special someone!</p>
 
@@ -75,9 +89,13 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import authManager from './js/auth.js';
+        import { db, collection, addDoc } from './js/firebase-config.js';
+
         const answers = {};
         let currentQuestion = 1;
+        let currentUser = null;
 
         function createFloatingHearts() {
             const heartsContainer = document.getElementById('hearts-container');
@@ -99,7 +117,7 @@
             }, 300);
         }
 
-        function selectAnswer(questionNum, answer) {
+        window.selectAnswer = function(questionNum, answer) {
             answers[questionNum] = answer;
             
             // Hide current question
@@ -118,7 +136,7 @@
             }
         }
 
-        async function showResults() {
+        window.showResults = async function() {
             document.getElementById('quiz-container').style.display = 'none';
             document.getElementById('quiz-result').style.display = 'block';
 
@@ -169,7 +187,26 @@
                 `;
             }, 1000);
 
-            // Send quiz results to Telegram
+            // Save quiz results to Firebase if user is logged in
+            if (currentUser) {
+                try {
+                    const quizData = {
+                        userId: currentUser.uid,
+                        answers: answers,
+                        score: score,
+                        message: message,
+                        timestamp: new Date().toISOString(),
+                        createdAt: new Date()
+                    };
+                    
+                    await addDoc(collection(db, 'quizResults'), quizData);
+                    console.log('Quiz results saved to Firebase');
+                } catch (error) {
+                    console.error('Error saving quiz results:', error);
+                }
+            }
+
+            // Send quiz results to Telegram (keeping original functionality)
             await sendQuizResultsToTelegram(score, message);
         }
 
@@ -202,7 +239,7 @@
             return Math.min(score, 100); // Cap at 100%
         }
 
-        function restartQuiz() {
+        window.restartQuiz = function() {
             // Reset everything
             Object.keys(answers).forEach(key => delete answers[key]);
             document.getElementById('quiz-result').style.display = 'none';
@@ -303,6 +340,11 @@ ${quizAnswersText}
         // Initialize the quiz
         document.addEventListener('DOMContentLoaded', function() {
             createFloatingHearts();
+            
+            // Wait for auth state to be determined
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+            }, 1000);
         });
     </script>
 

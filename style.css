@@ -15,6 +15,73 @@
     background: linear-gradient(135deg, #ffe5e5, #ffcccc, #ffe0e6);
     overflow-x: hidden;
     position: relative;
+    padding-top: 80px;
+  }
+
+  /* Navigation Styles */
+  .main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 15px 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 107, 157, 0.2);
+  }
+
+  .nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-content h2 {
+    color: #ff6b9d;
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .auth-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+
+  .nav-btn.primary {
+    background: #ff6b9d;
+    color: white;
+  }
+
+  .nav-btn.primary:hover {
+    background: #ff5a8a;
+    transform: translateY(-2px);
+  }
+
+  .nav-btn:not(.primary) {
+    color: #ff6b9d;
+    border: 2px solid #ff6b9d;
+  }
+
+  .nav-btn:not(.primary):hover {
+    background: #ff6b9d;
+    color: white;
+  }
+
+  .user-info {
+    display: none;
   }
 
   /* Animated floating hearts background */

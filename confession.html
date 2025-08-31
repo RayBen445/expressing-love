@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Confession - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container protected-content">
+      <div
+        class="tenor-gif-embed"
+        data-postid="22885016"
+        data-share-method="host"
+        data-aspect-ratio="1.04918"
+        data-width="100%"
+      >
+        <a href="https://tenor.com/view/manja-gif-22885016">Manja Sticker</a>from
+        <a href="https://tenor.com/search/manja-stickers">Manja Stickers</a>
+      </div>
+      <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+      
+      <h1>Do you love me? 🤗</h1>
+      <p>Create a beautiful love confession</p>
+
+      <!-- Theme Selector -->
+      <div class="theme-section">
+        <p style="margin-bottom: 10px; color: #666; font-size: 14px;">🎨 Choose a theme:</p>
+        <div class="theme-buttons">
+          <button class="theme-btn pink active" onclick="changeTheme('pink')">💕 Pink</button>
+          <button class="theme-btn red" onclick="changeTheme('red')">❤️ Red</button>
+          <button class="theme-btn purple" onclick="changeTheme('purple')">💜 Purple</button>
+          <button class="theme-btn blue" onclick="changeTheme('blue')">💙 Blue</button>
+        </div>
+      </div>
+
+      <div class="name-input">
+        <input type="text" id="userName" placeholder="Enter your name" required>
+      </div>
+
+      <div class="name-input">
+        <input type="tel" id="userPhone" placeholder="Enter your phone number" pattern="[0-9]{10,15}" required>
+      </div>
+
+      <!-- Custom Love Message -->
+      <div class="message-section">
+        <textarea id="customMessage" placeholder="💌 Write your custom love message (optional)..."></textarea>
+      </div>
+
+      <!-- Pre-written Romantic Quotes -->
+      <div class="quotes-section">
+        <select id="romanticQuotes">
+          <option value="">💝 Choose a romantic quote...</option>
+          <option value="You are my sun, my moon, and all my stars. ✨">You are my sun, my moon, and all my stars. ✨</option>
+          <option value="In your eyes, I found my home. 🏠❤️">In your eyes, I found my home. 🏠❤️</option>
+          <option value="Every love story is beautiful, but ours is my favorite. 📖💕">Every love story is beautiful, but ours is my favorite. 📖💕</option>
+          <option value="I choose you. And I'll choose you over and over. 💖">I choose you. And I'll choose you over and over. 💖</option>
+          <option value="You're the reason I believe in love. 🌹">You're the reason I believe in love. 🌹</option>
+          <option value="With you, I am home. 🏡💝">With you, I am home. 🏡💝</option>
+        </select>
+      </div>
+
+      <!-- Special Date -->
+      <div class="date-section">
+        <input type="date" id="specialDate" placeholder="🗓️ Choose a special date">
+      </div>
+
+      <!-- Photo Upload -->
+      <div class="photo-section">
+        <label class="photo-upload">
+          <input type="file" id="photoUpload" accept="image/*">
+          <span class="photo-upload-btn">📷 Add a special photo</span>
+        </label>
+        <div class="photo-preview" id="photoPreview" style="display: none;">
+          <img id="previewImg" alt="Preview">
+          <button onclick="removePhoto()" class="remove-photo">✕</button>
+        </div>
+      </div>
+
+      <!-- Voice Recording -->
+      <div class="voice-section">
+        <button onclick="startVoiceRecording()" class="voice-btn">🎤 Record Voice Message</button>
+        <div id="voiceStatus" class="voice-status"></div>
+      </div>
+
+      <!-- Countdown Timer -->
+      <div class="countdown-section" id="countdown-section" style="display: none;">
+        <h3>⏰ Countdown to Special Date:</h3>
+        <div id="countdown-timer" class="countdown-timer"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="button-section">
+        <button class="btn yes-btn" onclick="sendAnswer('Yes')">💖 Yes, I love you!</button>
+        <button class="btn no-btn" onclick="handleNo()">💙 Maybe later</button>
+      </div>
+
+      <!-- Sharing Section -->
+      <div class="sharing-section">
+        <p style="margin-bottom: 10px; color: #666; font-size: 14px;">📤 Share the love:</p>
+        <div class="sharing-buttons">
+          <a href="#" class="share-btn facebook" onclick="shareToFacebook()">📘 Facebook</a>
+          <a href="#" class="share-btn twitter" onclick="shareToTwitter()">🐦 Twitter</a>
+          <a href="#" class="share-btn instagram" onclick="shareToInstagram()">📷 Instagram</a>
+          <button onclick="generateQR()" class="share-btn" style="background: #666;">📱 Generate QR</button>
+        </div>
+      </div>
+
+      <!-- QR Code Section -->
+      <div class="qr-section" id="qr-section" style="display: none;">
+        <h3>📱 Share via QR Code</h3>
+        <div id="qr-code"></div>
+        <p style="font-size: 12px; color: #666; margin-top: 10px;">Scan this QR code to share the love confession!</p>
+      </div>
+
+      <!-- Additional Features Navigation -->
+      <div class="features-section">
+        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">🎉 Explore more features:</p>
+        <div class="features-nav">
+          <a href="quiz.html" class="feature-btn">💕 Compatibility Quiz</a>
+          <a href="memory-book.html" class="feature-btn">📖 Memory Book</a>
+          <a href="dashboard.html" class="feature-btn">📊 Dashboard</a>
+        </div>
+      </div>
+
+      <!-- Contact Section -->
+      <div class="contact-section">
+        <p class="contact-text">💬 Connect with us:</p>
+        <div class="contact-btn">
+          <a href="https://wa.me/2349135600014" target="_blank" class="whatsapp-business-btn">
+            💼 WhatsApp Business
+          </a>
+          <a href="https://wa.me/2349135600014" target="_blank" class="whatsapp-btn">
+            📱 WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading for users who aren't logged in -->
+    <div id="login-required" class="login-required" style="display: none;">
+        <div class="login-card">
+            <h2>💕 Join the Love Journey!</h2>
+            <p>Please log in or sign up to create and share love confessions</p>
+            <div class="login-actions">
+                <a href="login.html" class="btn primary">🔐 Login</a>
+                <a href="signup.html" class="btn secondary">✨ Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+        import { db, storage, collection, addDoc, ref, uploadBytes, getDownloadURL } from './js/firebase-config.js';
+
+        let currentUser = null;
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        // Theme functionality
+        window.changeTheme = function(theme) {
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.theme-btn.${theme}`).classList.add('active');
+            
+            const root = document.documentElement;
+            const themes = {
+                pink: { primary: '#ff6b9d', secondary: '#ff9a9e' },
+                red: { primary: '#e57373', secondary: '#f06292' },
+                purple: { primary: '#ba68c8', secondary: '#ce93d8' },
+                blue: { primary: '#64b5f6', secondary: '#90caf9' }
+            };
+            
+            const themeColors = themes[theme];
+            root.style.setProperty('--primary-color', themeColors.primary);
+            root.style.setProperty('--secondary-color', themeColors.secondary);
+        };
+
+        // Photo upload functionality
+        document.getElementById('photoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('photoPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        window.removePhoto = function() {
+            document.getElementById('photoUpload').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
+        };
+
+        // Voice recording placeholder
+        window.startVoiceRecording = function() {
+            document.getElementById('voiceStatus').innerHTML = `
+                <div style="color: #ff6b9d; margin-top: 10px;">
+                    🎤 Voice recording feature coming soon! 
+                    <br><small>For now, you can record a voice message and share it separately. 💕</small>
+                </div>
+            `;
+        };
+
+        // Countdown functionality
+        document.getElementById('specialDate').addEventListener('change', function() {
+            const specialDate = this.value;
+            if (!specialDate) return;
+            
+            const countdownSection = document.getElementById('countdown-section');
+            const countdownTimer = document.getElementById('countdown-timer');
+            countdownSection.style.display = 'block';
+            
+            const targetDate = new Date(specialDate).getTime();
+            
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+                
+                if (distance < 0) {
+                    clearInterval(interval);
+                    countdownTimer.innerHTML = '🎉 The special day is here! 🎉';
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                countdownTimer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        });
+
+        // Send confession functionality
+        window.sendAnswer = async function(answer) {
+            if (!currentUser) {
+                alert('Please log in to send a confession! 💕');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const userName = document.getElementById('userName').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const customMessage = document.getElementById('customMessage').value;
+            const romanticQuote = document.getElementById('romanticQuotes').value;
+            const specialDate = document.getElementById('specialDate').value;
+            const photoFile = document.getElementById('photoUpload').files[0];
+            
+            if (!userName.trim()) {
+                alert('Please enter your name first! 🥺');
+                return;
+            }
+            
+            if (!userPhone.trim()) {
+                alert('Please enter your phone number! 📱');
+                return;
+            }
+            
+            try {
+                // Upload photo if provided
+                let photoURL = null;
+                if (photoFile) {
+                    const photoRef = ref(storage, `confessions/${currentUser.uid}/${Date.now()}_${photoFile.name}`);
+                    const photoSnapshot = await uploadBytes(photoRef, photoFile);
+                    photoURL = await getDownloadURL(photoSnapshot.ref);
+                }
+
+                // Save confession to Firestore
+                const confessionData = {
+                    userId: currentUser.uid,
+                    userName,
+                    userPhone,
+                    response: answer,
+                    customMessage,
+                    romanticQuote,
+                    specialDate,
+                    photoURL,
+                    theme: document.querySelector('.theme-btn.active').textContent,
+                    timestamp: new Date().toISOString(),
+                    createdAt: new Date()
+                };
+                
+                await addDoc(collection(db, 'confessions'), confessionData);
+                
+                alert('Confession sent successfully! 💖');
+                
+                // Navigate to appropriate page after successful send
+                if (answer === 'Yes') {
+                    window.location.href = 'yes.html';
+                } else {
+                    window.location.href = 'no1.html';
+                }
+            } catch (error) {
+                alert('Error sending confession. Please try again! 😞');
+                console.error('Error:', error);
+            }
+        };
+
+        window.handleNo = async function() {
+            if (!currentUser) {
+                alert('Please log in to send a confession! 💕');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            await sendAnswer('No');
+        };
+
+        // Social sharing functions (keeping original functionality)
+        window.shareToFacebook = function() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out this beautiful love confession app! 💕');
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+        };
+
+        window.shareToTwitter = function() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Expressing love beautifully 💕 #LoveConfession #ExpressingLove');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+        };
+
+        window.shareToInstagram = function() {
+            alert('📷 Copy this link and share it on Instagram: ' + window.location.href);
+        };
+
+        window.generateQR = function() {
+            const qrSection = document.getElementById('qr-section');
+            const qrCode = document.getElementById('qr-code');
+            
+            // Simple QR code placeholder - in production, use a QR code library
+            qrCode.innerHTML = `<div style="width: 200px; height: 200px; background: #f0f0f0; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; margin: 0 auto;">📱 QR Code<br><small>Use QR library in production</small></div>`;
+            qrSection.style.display = 'block';
+        };
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            // Wait for auth state to be determined
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                
+                if (!currentUser) {
+                    // Show login required message for non-authenticated users
+                    document.getElementById('login-required').style.display = 'flex';
+                } else {
+                    // Pre-fill user information for authenticated users
+                    authManager.getUserProfile().then(profile => {
+                        if (profile) {
+                            document.getElementById('userName').value = profile.displayName || '';
+                            // Apply user's preferred theme
+                            if (profile.theme) {
+                                changeTheme(profile.theme);
+                            }
+                        }
+                    });
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Quotes - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container protected-content" style="margin-top: 100px; max-width: 800px;">
+        <div class="page-header">
+            <h1>💬 Love Quotes</h1>
+            <p>Beautiful words to express your deepest feelings</p>
+        </div>
+
+        <!-- Quote Categories -->
+        <div class="quote-categories">
+            <button class="category-btn active" onclick="filterQuotes('all')">All</button>
+            <button class="category-btn" onclick="filterQuotes('romantic')">💕 Romantic</button>
+            <button class="category-btn" onclick="filterQuotes('cute')">🥰 Cute</button>
+            <button class="category-btn" onclick="filterQuotes('deep')">💝 Deep</button>
+            <button class="category-btn" onclick="filterQuotes('funny')">😄 Funny</button>
+        </div>
+
+        <!-- Add Custom Quote -->
+        <div class="add-quote-section">
+            <h3>📝 Add Your Own Quote</h3>
+            <div class="quote-form">
+                <textarea id="custom-quote" placeholder="Write your beautiful love quote here..." rows="3"></textarea>
+                <select id="quote-category">
+                    <option value="romantic">💕 Romantic</option>
+                    <option value="cute">🥰 Cute</option>
+                    <option value="deep">💝 Deep</option>
+                    <option value="funny">😄 Funny</option>
+                </select>
+                <button onclick="addCustomQuote()" class="btn primary">💖 Add Quote</button>
+            </div>
+        </div>
+
+        <!-- Quotes Display -->
+        <div class="quotes-container" id="quotes-container">
+            <!-- Quotes will be dynamically loaded here -->
+        </div>
+
+        <!-- Navigation -->
+        <div class="page-navigation">
+            <a href="dashboard.html" class="btn secondary">← Back to Dashboard</a>
+            <a href="confession.html" class="btn primary">💌 Create Confession</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+        import { db, collection, addDoc, query, where, orderBy, getDocs, onSnapshot } from './js/firebase-config.js';
+
+        let currentUser = null;
+        let allQuotes = [];
+
+        // Predefined quotes
+        const defaultQuotes = [
+            { text: "You are my sun, my moon, and all my stars.", category: "romantic", author: "E.E. Cummings" },
+            { text: "In your eyes, I found my home.", category: "romantic", author: "Anonymous" },
+            { text: "Every love story is beautiful, but ours is my favorite.", category: "cute", author: "Anonymous" },
+            { text: "I choose you. And I'll choose you over and over.", category: "deep", author: "Anonymous" },
+            { text: "You're the reason I believe in love.", category: "romantic", author: "Anonymous" },
+            { text: "With you, I am home.", category: "romantic", author: "Anonymous" },
+            { text: "You make my heart skip a beat, and then catch up by racing.", category: "cute", author: "Anonymous" },
+            { text: "I love you to the moon and back, but I'd rather stay there with you.", category: "funny", author: "Anonymous" },
+            { text: "Love is not about how many days, months, or years you have been together. It's about how much you love each other every single day.", category: "deep", author: "Anonymous" },
+            { text: "You're my favorite notification.", category: "cute", author: "Anonymous" },
+            { text: "I fell in love with you because of all the small things you don't even realize you do.", category: "deep", author: "Anonymous" },
+            { text: "You're like a dictionary - you add meaning to my life.", category: "funny", author: "Anonymous" }
+        ];
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        async function loadQuotes() {
+            allQuotes = [...defaultQuotes];
+
+            // Load custom quotes from Firebase if user is logged in
+            if (currentUser) {
+                try {
+                    const quotesQuery = query(
+                        collection(db, 'customQuotes'),
+                        where('userId', '==', currentUser.uid),
+                        orderBy('createdAt', 'desc')
+                    );
+                    const quotesSnapshot = await getDocs(quotesQuery);
+                    
+                    quotesSnapshot.forEach((doc) => {
+                        const quote = doc.data();
+                        allQuotes.push({
+                            id: doc.id,
+                            text: quote.text,
+                            category: quote.category,
+                            author: 'You',
+                            custom: true
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error loading custom quotes:', error);
+                }
+            }
+
+            displayQuotes(allQuotes);
+        }
+
+        function displayQuotes(quotes) {
+            const container = document.getElementById('quotes-container');
+            container.innerHTML = '';
+
+            if (quotes.length === 0) {
+                container.innerHTML = '<div class="no-quotes">No quotes found for this category.</div>';
+                return;
+            }
+
+            quotes.forEach((quote, index) => {
+                const quoteCard = document.createElement('div');
+                quoteCard.className = `quote-card ${quote.category}`;
+                quoteCard.innerHTML = `
+                    <div class="quote-content">
+                        <div class="quote-text">"${quote.text}"</div>
+                        <div class="quote-author">- ${quote.author}</div>
+                        <div class="quote-category-badge">${getCategoryEmoji(quote.category)} ${quote.category}</div>
+                    </div>
+                    <div class="quote-actions">
+                        <button onclick="copyQuote('${quote.text.replace(/'/g, "\\'")}', ${index})" class="action-btn">📋 Copy</button>
+                        <button onclick="shareQuote('${quote.text.replace(/'/g, "\\'")}', '${quote.author}')" class="action-btn">📤 Share</button>
+                        ${quote.custom ? `<button onclick="deleteQuote('${quote.id}', ${index})" class="action-btn delete">🗑️ Delete</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(quoteCard);
+            });
+        }
+
+        function getCategoryEmoji(category) {
+            const emojis = {
+                romantic: '💕',
+                cute: '🥰',
+                deep: '💝',
+                funny: '😄'
+            };
+            return emojis[category] || '💕';
+        }
+
+        window.filterQuotes = function(category) {
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter quotes
+            const filteredQuotes = category === 'all' ? allQuotes : allQuotes.filter(q => q.category === category);
+            displayQuotes(filteredQuotes);
+        };
+
+        window.addCustomQuote = async function() {
+            if (!currentUser) {
+                alert('Please log in to add custom quotes!');
+                return;
+            }
+
+            const quoteText = document.getElementById('custom-quote').value.trim();
+            const category = document.getElementById('quote-category').value;
+
+            if (!quoteText) {
+                alert('Please enter a quote!');
+                return;
+            }
+
+            try {
+                const quoteData = {
+                    userId: currentUser.uid,
+                    text: quoteText,
+                    category: category,
+                    createdAt: new Date()
+                };
+
+                const docRef = await addDoc(collection(db, 'customQuotes'), quoteData);
+                
+                // Add to local array
+                allQuotes.unshift({
+                    id: docRef.id,
+                    text: quoteText,
+                    category: category,
+                    author: 'You',
+                    custom: true
+                });
+
+                // Clear form
+                document.getElementById('custom-quote').value = '';
+                
+                // Refresh display
+                displayQuotes(allQuotes);
+
+                // Show success message
+                showToast('Quote added successfully! 💖', 'success');
+
+            } catch (error) {
+                console.error('Error adding quote:', error);
+                showToast('Error adding quote. Please try again.', 'error');
+            }
+        };
+
+        window.copyQuote = function(text, index) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Quote copied to clipboard! 📋', 'success');
+            }).catch(() => {
+                showToast('Failed to copy quote', 'error');
+            });
+        };
+
+        window.shareQuote = function(text, author) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Beautiful Love Quote',
+                    text: `"${text}" - ${author}`,
+                });
+            } else {
+                // Fallback for browsers without native sharing
+                const shareText = `"${text}" - ${author}\n\nShared from Expressing Love ❤️`;
+                navigator.clipboard.writeText(shareText);
+                showToast('Quote copied for sharing! 📤', 'success');
+            }
+        };
+
+        window.deleteQuote = async function(quoteId, index) {
+            if (!confirm('Are you sure you want to delete this quote?')) {
+                return;
+            }
+
+            try {
+                // TODO: Implement deleteDoc when needed
+                // await deleteDoc(doc(db, 'customQuotes', quoteId));
+                
+                // Remove from local array
+                allQuotes.splice(index, 1);
+                displayQuotes(allQuotes);
+                
+                showToast('Quote deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting quote:', error);
+                showToast('Error deleting quote', 'error');
+            }
+        };
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                loadQuotes();
+            }, 1000);
+        });
+    </script>
+
+    <style>
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .page-header h1 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 10px;
+        }
+
+        .quote-categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary-color, #ff6b9d);
+            background: transparent;
+            color: var(--primary-color, #ff6b9d);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+        }
+
+        .add-quote-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .add-quote-section h3 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 20px;
+        }
+
+        .quote-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .quote-form textarea {
+            padding: 12px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .quotes-container {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .quote-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quote-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .quote-author {
+            color: #666;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .quote-category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--accent-color, #ffc1cc);
+            color: var(--primary-color, #ff6b9d);
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .quote-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 15px;
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .action-btn.delete {
+            background: #f44336;
+        }
+
+        .action-btn.delete:hover {
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .no-quotes {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .quote-form {
+                gap: 10px;
+            }
+            
+            .page-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .quote-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>

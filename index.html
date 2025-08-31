@@ -3,13 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ask Her Out</title>
+    <title>Expressing Love - Share Your Love</title>
 
     <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./css/auth.css" />
   </head>
   <body>
     <!-- Animated floating hearts background -->
     <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="main-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
 
     <div class="container">
       <div
@@ -503,6 +516,16 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
           console.error('Error sending response tracker data to Telegram:', error);
         }
       }
+    </script>
+
+    <!-- Firebase Authentication Integration -->
+    <script type="module">
+      import authManager from './js/auth.js';
+      
+      // Initialize authentication on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        // Auth manager will handle UI updates automatically
+      });
     </script>
   </body>
 </html>

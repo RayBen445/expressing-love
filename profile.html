@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/profile.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container protected-content">
+        <div class="profile-header">
+            <h1>👤 My Profile</h1>
+            <p>Manage your personal information and preferences</p>
+        </div>
+
+        <div class="profile-content">
+            <!-- Profile Picture Section -->
+            <div class="profile-section">
+                <h2>Profile Picture</h2>
+                <div class="profile-picture-area">
+                    <div class="current-picture">
+                        <img id="current-avatar" src="/images/default-avatar.png" alt="Profile Picture">
+                        <div class="picture-overlay">
+                            <button onclick="document.getElementById('photo-input').click()" class="change-photo-btn">
+                                📷 Change Photo
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="uploadProfilePicture(event)">
+                    <div class="picture-info">
+                        <p>Upload a beautiful profile picture to personalize your account</p>
+                        <small>Supported formats: JPG, PNG, GIF (Max 5MB)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information Section -->
+            <div class="profile-section">
+                <h2>Personal Information</h2>
+                <form id="profile-form" class="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="displayName">Display Name *</label>
+                            <input type="text" id="displayName" required placeholder="Your beautiful name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" readonly placeholder="your@email.com">
+                            <small>Email cannot be changed. Contact support if needed.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="birthday">Birthday</label>
+                            <input type="date" id="birthday" placeholder="Select your birthday">
+                        </div>
+                        <div class="form-group">
+                            <label for="telegramUsername">Telegram Username</label>
+                            <input type="text" id="telegramUsername" placeholder="@your_telegram">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" rows="4" placeholder="Tell the world something beautiful about yourself..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="favoriteQuote">Favorite Love Quote</label>
+                        <textarea id="favoriteQuote" rows="3" placeholder="Share your favorite quote about love..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">💖 Save Changes</button>
+                        <button type="button" onclick="location.href='dashboard.html'" class="btn secondary">← Back to Dashboard</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Section -->
+            <div class="profile-section">
+                <h2>Security & Privacy</h2>
+                
+                <div class="security-options">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h3>Change Password</h3>
+                            <p>Update your account password for better security</p>
+                        </div>
+                        <button onclick="showChangePassword()" class="btn secondary">🔑 Change Password</button>
+                    </div>
+
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h3>Profile Privacy</h3>
+                            <p>Control who can see your profile information</p>
+                        </div>
+                        <select id="privacySetting" onchange="updatePrivacySetting()">
+                            <option value="private">🔒 Private</option>
+                            <option value="public">🌍 Public</option>
+                        </select>
+                    </div>
+
+                    <div class="security-item danger">
+                        <div class="security-info">
+                            <h3>Delete Account</h3>
+                            <p>Permanently delete your account and all data</p>
+                        </div>
+                        <button onclick="showDeleteAccount()" class="btn danger">🗑️ Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="password-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔑 Change Password</h3>
+                <span class="close" onclick="closeModal('password-modal')">&times;</span>
+            </div>
+            <form id="password-form">
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" required minlength="6" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" required minlength="6" placeholder="Confirm new password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">Update Password</button>
+                    <button type="button" onclick="closeModal('password-modal')" class="btn secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Delete Account</h3>
+                <span class="close" onclick="closeModal('delete-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>This action cannot be undone!</strong></p>
+                <p>Deleting your account will permanently remove:</p>
+                <ul>
+                    <li>Your profile information</li>
+                    <li>All your love confessions</li>
+                    <li>Your memory book entries</li>
+                    <li>Quiz results and activity data</li>
+                </ul>
+                <p>Type <strong>DELETE</strong> to confirm:</p>
+                <input type="text" id="delete-confirmation" placeholder="Type DELETE here">
+            </div>
+            <div class="form-actions">
+                <button onclick="confirmDeleteAccount()" class="btn danger">🗑️ Delete My Account</button>
+                <button onclick="closeModal('delete-modal')" class="btn secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="message-toast" class="toast"></div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+
+        let profileData = null;
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        async function loadProfile() {
+            if (!authManager.currentUser) return;
+
+            profileData = await authManager.getUserProfile();
+            if (profileData) {
+                // Populate form fields
+                document.getElementById('displayName').value = profileData.displayName || '';
+                document.getElementById('email').value = profileData.email || '';
+                document.getElementById('birthday').value = profileData.birthday || '';
+                document.getElementById('telegramUsername').value = profileData.telegramUsername || '';
+                document.getElementById('bio').value = profileData.bio || '';
+                document.getElementById('favoriteQuote').value = profileData.favoriteQuote || '';
+                document.getElementById('privacySetting').value = profileData.privacy || 'private';
+                
+                // Update profile picture
+                const avatarImg = document.getElementById('current-avatar');
+                avatarImg.src = profileData.photoURL || '/images/default-avatar.png';
+            }
+        }
+
+        window.uploadProfilePicture = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showToast('File size must be less than 5MB', 'error');
+                return;
+            }
+
+            showToast('Uploading photo...', 'info');
+            const result = await authManager.uploadProfileImage(file);
+            
+            if (result.success) {
+                document.getElementById('current-avatar').src = result.photoURL;
+                showToast('Profile picture updated successfully!', 'success');
+            } else {
+                showToast('Failed to upload photo: ' + result.error, 'error');
+            }
+        };
+
+        async function handleProfileSubmit(e) {
+            e.preventDefault();
+            
+            const updates = {
+                displayName: document.getElementById('displayName').value,
+                birthday: document.getElementById('birthday').value,
+                telegramUsername: document.getElementById('telegramUsername').value,
+                bio: document.getElementById('bio').value,
+                favoriteQuote: document.getElementById('favoriteQuote').value
+            };
+
+            const result = await authManager.updateUserProfile(updates);
+            
+            if (result.success) {
+                showToast('Profile updated successfully!', 'success');
+            } else {
+                showToast('Failed to update profile: ' + result.error, 'error');
+            }
+        }
+
+        window.updatePrivacySetting = async function() {
+            const privacy = document.getElementById('privacySetting').value;
+            const result = await authManager.updateUserProfile({ privacy });
+            
+            if (result.success) {
+                showToast('Privacy setting updated!', 'success');
+            } else {
+                showToast('Failed to update privacy setting', 'error');
+            }
+        };
+
+        window.showChangePassword = function() {
+            document.getElementById('password-modal').style.display = 'flex';
+        };
+
+        window.showDeleteAccount = function() {
+            document.getElementById('delete-modal').style.display = 'flex';
+        };
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        };
+
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+            
+            const result = await authManager.changePassword(newPassword);
+            
+            if (result.success) {
+                showToast('Password updated successfully!', 'success');
+                closeModal('password-modal');
+                document.getElementById('password-form').reset();
+            } else {
+                showToast('Failed to update password: ' + result.error, 'error');
+            }
+        }
+
+        window.confirmDeleteAccount = async function() {
+            const confirmation = document.getElementById('delete-confirmation').value;
+            
+            if (confirmation !== 'DELETE') {
+                showToast('Please type DELETE to confirm', 'error');
+                return;
+            }
+            
+            if (confirm('This will permanently delete your account and all data. Are you absolutely sure?')) {
+                const result = await authManager.deleteAccount();
+                
+                if (result.success) {
+                    showToast('Account deleted successfully', 'success');
+                } else {
+                    showToast('Failed to delete account: ' + result.error, 'error');
+                }
+            }
+        };
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('message-toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            // Wait for auth state
+            setTimeout(() => {
+                if (authManager.currentUser) {
+                    loadProfile();
+                }
+            }, 1000);
+
+            // Event listeners
+            document.getElementById('profile-form').addEventListener('submit', handleProfileSubmit);
+            document.getElementById('password-form').addEventListener('submit', handlePasswordChange);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <div class="container auth-container">
+        <div class="auth-card">
+            <h1>💕 Welcome Back! 💕</h1>
+            <p>Sign in to continue your love journey</p>
+
+            <div id="auth-message" class="auth-message"></div>
+
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="auth-btn primary">
+                    🔐 Sign In
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <button onclick="signInWithGoogle()" class="auth-btn google">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="18">
+                Sign in with Google
+            </button>
+
+            <div class="auth-links">
+                <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        function showMessage(message, type = 'error') {
+            const messageDiv = document.getElementById('auth-message');
+            messageDiv.textContent = message;
+            messageDiv.className = `auth-message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showMessage('Please fill in all fields');
+                return;
+            }
+            
+            const result = await authManager.signIn(email, password);
+            
+            if (result.success) {
+                showMessage('Welcome back! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                showMessage(result.error);
+            }
+        }
+
+        window.signInWithGoogle = async function() {
+            const result = await authManager.signInWithGoogle();
+            
+            if (result.success) {
+                showMessage('Welcome! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                showMessage(result.error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+        });
+    </script>
+</body>
+</html>
