@@ -35,10 +35,87 @@
 
       <div class="btn">
         <a href="yes.html">Yes</a>
-        <a href="#" id="move-random">No</a>
+        <a href="#" id="move-random" onclick="sendFinalNo()">No</a>
       </div>
     </div>
 
     <script src="./script.js"></script>
+    <script>
+      async function sendFinalNo() {
+        const userName = sessionStorage.getItem('userName') || 'Anonymous';
+        const userPhone = sessionStorage.getItem('userPhone') || 'Not provided';
+        const customMessage = sessionStorage.getItem('customMessage') || '';
+        const romanticQuote = sessionStorage.getItem('romanticQuote') || '';
+        const specialDate = sessionStorage.getItem('specialDate') || '';
+        const selectedTheme = sessionStorage.getItem('selectedTheme') || 'Not selected';
+        const photoInfo = sessionStorage.getItem('photoInfo') || 'No photo';
+        
+        // Track response for analytics
+        const responseData = {
+          name: userName,
+          phone: userPhone,
+          response: 'No',
+          customMessage,
+          romanticQuote,
+          specialDate,
+          theme: selectedTheme,
+          photoInfo,
+          timestamp: new Date().toISOString()
+        };
+        
+        const responses = JSON.parse(localStorage.getItem('loveResponses')) || [];
+        responses.push(responseData);
+        localStorage.setItem('loveResponses', JSON.stringify(responses));
+        
+        // Create additional content with all collected data
+        let additionalContent = '';
+        if (customMessage.trim()) {
+          additionalContent += `\n💌 Personal Message: ${customMessage}`;
+        }
+        if (romanticQuote) {
+          additionalContent += `\n💝 Chosen Quote: ${romanticQuote}`;
+        }
+        if (specialDate) {
+          additionalContent += `\n🗓️ Special Date: ${specialDate}`;
+        }
+        additionalContent += `\n🎨 Theme: ${selectedTheme}`;
+        additionalContent += `\n📷 Photo: ${photoInfo}`;
+        
+        const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
+        const chatId = '2348075614248';
+        
+        const message = `💔 Love Confession Response 💔
+
+🌸 ${userName} has responded to your love confession
+📱 Contact: ${userPhone}
+
+💙 ANSWER: NO 💙
+
+💪 Don't give up! Love takes time and patience ⏰
+🌈 Keep spreading love and positivity! ✨${additionalContent}
+
+#LoveJourney #StayPositive #ExpressingLove`;
+        
+        try {
+          const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: message
+            })
+          });
+          
+          if (response.ok) {
+            alert('Message sent! Thank you for your honesty 💙');
+            sessionStorage.clear(); // Clear stored data
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    </script>
   </body>
 </html>

