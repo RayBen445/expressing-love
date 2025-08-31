@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Status Check - Expressing Love</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        .status {
+            padding: 10px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.3); border-left: 4px solid #4caf50; }
+        .warning { background: rgba(255, 193, 7, 0.3); border-left: 4px solid #ffc107; }
+        .error { background: rgba(244, 67, 54, 0.3); border-left: 4px solid #f44336; }
+        .info { background: rgba(33, 150, 243, 0.3); border-left: 4px solid #2196f3; }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .check-item { margin: 15px 0; }
+        .code { 
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Deployment Status Check</h1>
+        
+        <div class="status error">
+            <strong>❌ DEPLOYMENT ISSUE DETECTED</strong><br>
+            The Vercel deployment URL is not accessible. See analysis below.
+        </div>
+
+        <h2>📊 System Status</h2>
+        
+        <div class="check-item">
+            <div class="status success">✅ Repository Status: HEALTHY</div>
+            <p>Latest commits are available on the main branch</p>
+        </div>
+
+        <div class="check-item">
+            <div class="status success">✅ Local Testing: WORKING</div>
+            <p>Site loads correctly when served locally</p>
+        </div>
+
+        <div class="check-item">
+            <div class="status error">❌ Vercel Deployment: FAILED</div>
+            <p>Domain expressing-love.vercel.app is not resolving</p>
+        </div>
+
+        <div class="check-item">
+            <div class="status warning">⚠️ Environment Variables: MISSING</div>
+            <p>Firebase credentials should be configured as environment variables</p>
+        </div>
+
+        <h2>🔧 Immediate Actions Required</h2>
+        
+        <div class="info">
+            <h3>1. Redeploy to Vercel</h3>
+            <div class="code">
+                # Install Vercel CLI<br>
+                npm i -g vercel<br><br>
+                # Deploy from repository root<br>
+                vercel --prod
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>2. Configure Environment Variables</h3>
+            <p>In Vercel dashboard, add these environment variables:</p>
+            <div class="code">
+                FIREBASE_API_KEY=your_actual_api_key<br>
+                FIREBASE_AUTH_DOMAIN=your_actual_auth_domain<br>
+                FIREBASE_PROJECT_ID=your_actual_project_id<br>
+                FIREBASE_STORAGE_BUCKET=your_actual_storage_bucket<br>
+                FIREBASE_MESSAGING_SENDER_ID=your_actual_sender_id<br>
+                FIREBASE_APP_ID=your_actual_app_id
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>3. Verify Firebase Configuration</h3>
+            <p>Ensure Firebase project credentials are valid and the project is active</p>
+        </div>
+
+        <h2>📋 Files Added for Deployment</h2>
+        <div class="status success">
+            ✅ DEPLOYMENT_DEBUG.md - Detailed analysis<br>
+            ✅ .vercelignore - Vercel ignore patterns<br>
+            ✅ .gitignore - Git ignore patterns<br>
+            ✅ deploy-helper.sh - Deployment script<br>
+            ✅ Enhanced vercel.json with caching<br>
+            ✅ Updated Firebase config for env vars
+        </div>
+
+        <p style="text-align: center; margin-top: 30px;">
+            <strong>For detailed analysis, see: <a href="DEPLOYMENT_DEBUG.md" style="color: #ffc107;">DEPLOYMENT_DEBUG.md</a></strong>
+        </p>
+    </div>
+</body>
+</html>

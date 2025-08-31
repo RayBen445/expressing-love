@@ -31,8 +31,33 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.html)",
+      "headers": [
+        {
+          "key": "Cache-Control", 
+          "value": "public, max-age=0, must-revalidate"
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "app/**": {
+      "env": {
+        "FIREBASE_API_KEY": "@firebase_api_key",
+        "FIREBASE_AUTH_DOMAIN": "@firebase_auth_domain",
+        "FIREBASE_PROJECT_ID": "@firebase_project_id",
+        "FIREBASE_STORAGE_BUCKET": "@firebase_storage_bucket",
+        "FIREBASE_MESSAGING_SENDER_ID": "@firebase_messaging_sender_id",
+        "FIREBASE_APP_ID": "@firebase_app_id"
+      }
+    }
+  }
 }

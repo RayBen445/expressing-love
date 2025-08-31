@@ -1,12 +1,12 @@
 // Firebase configuration
-// TODO: Replace with your actual Firebase config
+// Uses environment variables when available, fallback to hardcoded values for development
 const firebaseConfig = {
-    apiKey: "AIzaSyDC5wv7g_SVN5TUu0mJaNCXsixQ2xGEn0U",
-    authDomain: "sample-firebase-ai-app-f3995.firebaseapp.com", 
-    projectId: "sample-firebase-ai-app-f3995",
-    storageBucket: "sample-firebase-ai-app-f3995.firebasestorage.app",
-    messagingSenderId: "1075039632976",
-    appId: "1:1075039632976:web:9f935823d04bb460e25b55"
+    apiKey: window?.process?.env?.FIREBASE_API_KEY || "AIzaSyDC5wv7g_SVN5TUu0mJaNCXsixQ2xGEn0U",
+    authDomain: window?.process?.env?.FIREBASE_AUTH_DOMAIN || "sample-firebase-ai-app-f3995.firebaseapp.com", 
+    projectId: window?.process?.env?.FIREBASE_PROJECT_ID || "sample-firebase-ai-app-f3995",
+    storageBucket: window?.process?.env?.FIREBASE_STORAGE_BUCKET || "sample-firebase-ai-app-f3995.firebasestorage.app",
+    messagingSenderId: window?.process?.env?.FIREBASE_MESSAGING_SENDER_ID || "1075039632976",
+    appId: window?.process?.env?.FIREBASE_APP_ID || "1:1075039632976:web:9f935823d04bb460e25b55"
 };
 
 // Initialize Firebase
