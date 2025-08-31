@@ -28,10 +28,57 @@
       <h1>Do you love me? 🤗</h1>
       <p>i'm only yours </p>
 
+      <div class="name-input">
+        <input type="text" id="userName" placeholder="Enter your name" required>
+      </div>
+
       <div class="btn">
-        <a href="yes.html">Yes</a>
-        <a href="no1.html">No</a>
+        <button onclick="sendAnswer('Yes')">Yes</button>
+        <button onclick="sendAnswer('No')">No</button>
       </div>
     </div>
+
+    <script>
+      async function sendAnswer(answer) {
+        const userName = document.getElementById('userName').value;
+        
+        if (!userName.trim()) {
+          alert('Please enter your name first! 🥺');
+          return;
+        }
+        
+        const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
+        const chatId = '6649936329';
+        const message = `💕 ${userName} answered: ${answer}`;
+        
+        try {
+          const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: message
+            })
+          });
+          
+          if (response.ok) {
+            alert('Message sent successfully! 💖');
+            // Navigate to appropriate page after successful send
+            if (answer === 'Yes') {
+              window.location.href = 'yes.html';
+            } else {
+              window.location.href = 'no1.html';
+            }
+          } else {
+            alert('Failed to send message. Please try again! 😞');
+          }
+        } catch (error) {
+          alert('Error sending message. Please check your connection! 😞');
+          console.error('Error:', error);
+        }
+      }
+    </script>
   </body>
 </html>
