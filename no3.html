@@ -47,6 +47,8 @@
         const customMessage = sessionStorage.getItem('customMessage') || '';
         const romanticQuote = sessionStorage.getItem('romanticQuote') || '';
         const specialDate = sessionStorage.getItem('specialDate') || '';
+        const selectedTheme = sessionStorage.getItem('selectedTheme') || 'Not selected';
+        const photoInfo = sessionStorage.getItem('photoInfo') || 'No photo';
         
         // Track response for analytics
         const responseData = {
@@ -56,6 +58,8 @@
           customMessage,
           romanticQuote,
           specialDate,
+          theme: selectedTheme,
+          photoInfo,
           timestamp: new Date().toISOString()
         };
         
@@ -74,6 +78,8 @@
         if (specialDate) {
           additionalContent += `\n🗓️ Special Date: ${specialDate}`;
         }
+        additionalContent += `\n🎨 Theme: ${selectedTheme}`;
+        additionalContent += `\n📷 Photo: ${photoInfo}`;
         
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
         const chatId = '6649936329';

