@@ -107,20 +107,22 @@
 
       <!-- Social Sharing -->
       <div class="sharing-section">
-        <p style="margin-bottom: 10px; color: #666; font-size: 14px;">📤 Share the love:</p>
+        <p style="margin-bottom: 15px; color: #666; font-size: 16px; font-weight: 500;">📤 Share the love:</p>
         <div class="sharing-buttons">
-          <a href="#" class="share-btn facebook" onclick="shareToFacebook()">📘 Facebook</a>
-          <a href="#" class="share-btn twitter" onclick="shareToTwitter()">🐦 Twitter</a>
-          <a href="#" class="share-btn instagram" onclick="shareToInstagram()">📷 Instagram</a>
-          <button onclick="generateQR()" class="share-btn" style="background: #666;">📱 Generate QR</button>
+          <button class="share-btn facebook" onclick="socialSharing.shareOnFacebook()">📘 Facebook</button>
+          <button class="share-btn twitter" onclick="socialSharing.shareOnTwitter('💕 Express your love in the most beautiful way!')">🐦 Twitter</button>
+          <button class="share-btn whatsapp" onclick="socialSharing.shareOnWhatsApp('💕 Check out this amazing love expression app!')">💚 WhatsApp</button>
+          <button class="share-btn telegram" onclick="socialSharing.shareOnTelegram('💕 Express your feelings beautifully!')">✈️ Telegram</button>
+          <button class="share-btn qr" onclick="socialSharing.showQRCodeModal()">📱 QR Code</button>
+          <button class="share-btn copy" onclick="socialSharing.copyToClipboard()">📋 Copy Link</button>
         </div>
-      </div>
-
-      <!-- QR Code Section -->
-      <div class="qr-section" id="qr-section">
-        <h3>📱 Share via QR Code</h3>
-        <div id="qr-code"></div>
-        <p style="font-size: 12px; color: #666; margin-top: 10px;">Scan this QR code to share the love confession!</p>
+        
+        <!-- Native sharing for mobile -->
+        <div class="native-sharing" style="margin-top: 15px;">
+          <button class="share-btn native" onclick="tryNativeShare()" id="native-share-btn" style="display: none;">
+            📱 Share
+          </button>
+        </div>
       </div>
 
       <!-- Additional Features Navigation -->
@@ -560,6 +562,9 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
       });
     </script>
 
+    <!-- Social Sharing Script -->
+    <script src="./js/social-sharing.js"></script>
+
     <!-- Firebase Authentication Integration -->
     <script type="module">
       import './js/auth-guard.js';
@@ -568,7 +573,26 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
       // Initialize authentication on page load
       document.addEventListener('DOMContentLoaded', () => {
         // Auth manager will handle UI updates automatically
+        
+        // Check if native sharing is supported and show native share button
+        if (navigator.share) {
+          document.getElementById('native-share-btn').style.display = 'inline-block';
+        }
       });
+
+      // Native sharing function
+      window.tryNativeShare = async function() {
+        const result = await window.socialSharing.nativeShare({
+          title: 'Expressing Love 💕',
+          text: 'Express your love in the most beautiful way!',
+          url: window.location.href
+        });
+        
+        if (!result.success) {
+          // Fallback to copy link
+          window.socialSharing.copyToClipboard();
+        }
+      };
     </script>
   </body>
 </html>
