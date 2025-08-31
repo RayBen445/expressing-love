@@ -132,7 +132,13 @@
           <a href="quiz.html" class="feature-btn">💕 Compatibility Quiz</a>
           <a href="memory-book.html" class="feature-btn">📖 Memory Book</a>
           <button onclick="openTrackingDashboard()" class="feature-btn">📊 Response Tracker</button>
+          <button onclick="showCountdownDemo()" class="feature-btn">⏰ Countdown Timer</button>
         </div>
+      </div>
+
+      <!-- Countdown Demo Section -->
+      <div id="countdown-demo-section" style="display: none; margin-top: 25px;">
+        <div id="demo-countdown-container"></div>
       </div>
 
       <!-- Contact Section -->
@@ -183,22 +189,187 @@
         }, 300);
       }
 
-      // Theme changer
+      // Enhanced Theme System
       function changeTheme(theme) {
         const body = document.body;
         const themes = {
-          pink: 'linear-gradient(135deg, #ffe5e5, #ffcccc, #ffe0e6)',
-          red: 'linear-gradient(135deg, #ffebee, #ffcdd2, #ef9a9a)',
-          purple: 'linear-gradient(135deg, #f3e5f5, #e1bee7, #ce93d8)',
-          blue: 'linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9)'
+          pink: {
+            background: 'linear-gradient(135deg, #ffe5e5, #ffcccc, #ffe0e6)',
+            primary: '#ff6b9d',
+            secondary: '#ff9a9e',
+            accent: '#ffc1cc'
+          },
+          red: {
+            background: 'linear-gradient(135deg, #ffebee, #ffcdd2, #ef9a9a)',
+            primary: '#e91e63',
+            secondary: '#f06292',
+            accent: '#f8bbd9'
+          },
+          purple: {
+            background: 'linear-gradient(135deg, #f3e5f5, #e1bee7, #ce93d8)',
+            primary: '#9c27b0',
+            secondary: '#ba68c8',
+            accent: '#e1bee7'
+          },
+          blue: {
+            background: 'linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9)',
+            primary: '#2196f3',
+            secondary: '#64b5f6',
+            accent: '#bbdefb'
+          }
         };
         
-        body.style.background = themes[theme];
+        const selectedTheme = themes[theme];
+        if (!selectedTheme) return;
         
-        // Update active theme button
-        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.theme-btn.${theme}`).classList.add('active');
+        // Apply background with smooth transition
+        body.style.transition = 'background 0.5s ease';
+        body.style.background = selectedTheme.background;
+        
+        // Update CSS custom properties
+        document.documentElement.style.setProperty('--primary-color', selectedTheme.primary);
+        document.documentElement.style.setProperty('--secondary-color', selectedTheme.secondary);
+        document.documentElement.style.setProperty('--accent-color', selectedTheme.accent);
+        
+        // Update active theme button with animation
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+          btn.classList.remove('active');
+          btn.style.transform = 'scale(1)';
+        });
+        
+        const activeBtn = document.querySelector(`.theme-btn.${theme}`);
+        if (activeBtn) {
+          activeBtn.classList.add('active');
+          activeBtn.style.transform = 'scale(1.1)';
+          
+          // Add bounce animation
+          setTimeout(() => {
+            activeBtn.style.transform = 'scale(1)';
+          }, 200);
+        }
+        
+        // Save theme preference
+        localStorage.setItem('expressLove_theme', theme);
+        
+        // Trigger confetti if confetti system is available
+        if (window.confettiSystem) {
+          // Small celebratory burst
+          window.confettiSystem.burst(
+            window.innerWidth / 2, 
+            window.innerHeight / 2, 
+            15
+          );
+        }
+        
+        // Show theme change toast
+        showThemeToast(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}! 🎨`);
       }
+      
+      // Load saved theme on page load
+      function loadSavedTheme() {
+        const savedTheme = localStorage.getItem('expressLove_theme');
+        if (savedTheme && ['pink', 'red', 'purple', 'blue'].includes(savedTheme)) {
+          changeTheme(savedTheme);
+        }
+      }
+      
+      // Theme toast notification
+      function showThemeToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'theme-toast';
+        toast.textContent = message;
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: var(--primary-color, #ff6b9d);
+          color: white;
+          padding: 12px 20px;
+          border-radius: 25px;
+          font-size: 14px;
+          font-weight: bold;
+          z-index: 10000;
+          transform: translateX(100%);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+          toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Hide toast
+        setTimeout(() => {
+          toast.style.transform = 'translateX(100%)';
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+          }, 300);
+        }, 2000);
+      }
+
+      // Countdown Demo Function
+      window.showCountdownDemo = function() {
+        const demoSection = document.getElementById('countdown-demo-section');
+        const container = document.getElementById('demo-countdown-container');
+        
+        if (demoSection.style.display === 'none') {
+          // Show countdown demo
+          demoSection.style.display = 'block';
+          
+          // Create a demo countdown for Valentine's Day (next occurrence)
+          const nextValentines = new Date();
+          nextValentines.setMonth(1, 14); // February 14
+          nextValentines.setHours(0, 0, 0, 0);
+          
+          // If Valentine's Day has passed this year, set for next year
+          if (nextValentines < new Date()) {
+            nextValentines.setFullYear(nextValentines.getFullYear() + 1);
+          }
+          
+          // Clear any existing countdown
+          container.innerHTML = '';
+          
+          // Create countdown
+          const countdownId = window.countdownSystem.createCountdown(nextValentines, {
+            title: "Valentine's Day 2025! 💝",
+            description: "Love is in the air! Get ready to celebrate romance!",
+            style: 'romantic',
+            color: 'pink',
+            onComplete: (countdown) => {
+              if (window.confettiSystem) {
+                window.confettiSystem.loveExplosion();
+              }
+            }
+          });
+          
+          // Display the countdown
+          window.countdownSystem.displayCountdown(countdownId, 'demo-countdown-container');
+          
+          // Add confetti burst when showing countdown
+          if (window.confettiSystem) {
+            setTimeout(() => {
+              window.confettiSystem.burst(
+                window.innerWidth / 2,
+                window.innerHeight * 0.6,
+                20
+              );
+            }, 500);
+          }
+          
+          // Scroll to countdown
+          demoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // Hide countdown demo
+          demoSection.style.display = 'none';
+          // Clear all countdowns
+          window.countdownSystem.clearAllCountdowns();
+        }
+      };
 
       // Social sharing functions
       function shareToFacebook() {
@@ -564,6 +735,10 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
 
     <!-- Social Sharing Script -->
     <script src="./js/social-sharing.js"></script>
+    <!-- Confetti Animation System -->
+    <script src="./js/confetti.js"></script>
+    <!-- Countdown Timer System -->
+    <script src="./js/countdown.js"></script>
 
     <!-- Firebase Authentication Integration -->
     <script type="module">
@@ -573,6 +748,9 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
       // Initialize authentication on page load
       document.addEventListener('DOMContentLoaded', () => {
         // Auth manager will handle UI updates automatically
+        
+        // Load saved theme
+        loadSavedTheme();
         
         // Check if native sharing is supported and show native share button
         if (navigator.share) {

@@ -401,25 +401,33 @@
         }
 
         function showConfetti() {
-            const confettiContainer = document.createElement('div');
-            confettiContainer.className = 'confetti-container';
-            document.body.appendChild(confettiContainer);
+            // Use the new advanced confetti system
+            if (window.confettiSystem) {
+                window.confettiSystem.giftCelebration();
+            } else {
+                // Fallback to basic confetti
+                const confettiContainer = document.createElement('div');
+                confettiContainer.className = 'confetti-container';
+                document.body.appendChild(confettiContainer);
 
-            const colors = ['#ff6b9d', '#ff9a9e', '#ffc1cc', '#ffeb3b', '#4caf50', '#2196f3'];
-            
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDelay = Math.random() * 2 + 's';
-                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
-                confettiContainer.appendChild(confetti);
+                const colors = ['#ff6b9d', '#ff9a9e', '#ffc1cc', '#ffeb3b', '#4caf50', '#2196f3'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                    confettiContainer.appendChild(confetti);
+                }
+
+                setTimeout(() => {
+                    if (confettiContainer.parentNode) {
+                        document.body.removeChild(confettiContainer);
+                    }
+                }, 5000);
             }
-
-            setTimeout(() => {
-                document.body.removeChild(confettiContainer);
-            }, 5000);
         }
 
         function showToast(message, type) {
@@ -754,5 +762,8 @@
             }
         }
     </style>
+
+    <!-- Enhanced Confetti System -->
+    <script src="./js/confetti.js"></script>
 </body>
 </html>
