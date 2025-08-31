@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Users - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <style>
+        .users-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-color, #ff6b9d);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            border: 3px solid var(--primary-color, #ff6b9d);
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .user-bio {
+            color: #666;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            min-height: 40px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .message-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .gift-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-filters {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color, #ff6b9d);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.2);
+        }
+
+        .no-users {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .users-container {
+                padding: 15px;
+            }
+            
+            .back-home {
+                position: relative;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto" style="display: none;">
+        <source src="https://files.catbox.moe/4vb6xe.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
+
+    <div class="users-container">
+        <h1 style="text-align: center; color: #333; margin-bottom: 30px;">💕 Discover Love Connections 💕</h1>
+        
+        <div class="search-filters">
+            <input type="text" class="search-input" id="search-input" placeholder="🔍 Search users by name...">
+        </div>
+
+        <div id="loading" style="text-align: center; padding: 40px; color: #666;">
+            Loading users...
+        </div>
+
+        <div class="users-grid" id="users-grid" style="display: none;">
+            <!-- Users will be populated here -->
+        </div>
+
+        <div id="no-users" class="no-users" style="display: none;">
+            <h3>💔 No users found</h3>
+            <p>Be the first to spread love and invite others!</p>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeMessageModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💬 Send Message</h3>
+                <button onclick="closeMessageModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="message-recipient" class="user-info"></div>
+                <textarea id="message-content" placeholder="Write your message..." rows="4" style="width: 100%; margin: 15px 0; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; resize: vertical;"></textarea>
+                <div class="form-actions">
+                    <button onclick="sendMessage()" class="auth-btn primary">💌 Send Message</button>
+                    <button onclick="closeMessageModal()" class="auth-btn" style="background: #ccc;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gift Modal -->
+    <div id="gift-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeGiftModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🎁 Send Gift</h3>
+                <button onclick="closeGiftModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="gift-recipient" class="user-info"></div>
+                <div class="gift-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <button class="gift-option" data-gift="💖" onclick="selectGift('💖', 'Heart')">💖<br><small>Heart</small></button>
+                    <button class="gift-option" data-gift="🌹" onclick="selectGift('🌹', 'Rose')">🌹<br><small>Rose</small></button>
+                    <button class="gift-option" data-gift="🍫" onclick="selectGift('🍫', 'Chocolate')">🍫<br><small>Chocolate</small></button>
+                    <button class="gift-option" data-gift="💍" onclick="selectGift('💍', 'Ring')">💍<br><small>Ring</small></button>
+                    <button class="gift-option" data-gift="🧸" onclick="selectGift('🧸', 'Teddy Bear')">🧸<br><small>Teddy</small></button>
+                    <button class="gift-option" data-gift="💎" onclick="selectGift('💎', 'Diamond')">💎<br><small>Diamond</small></button>
+                </div>
+                <div id="selected-gift" style="text-align: center; margin: 15px 0; font-size: 1.2em;"></div>
+                <textarea id="gift-message" placeholder="Add a sweet message with your gift..." rows="3" style="width: 100%; margin: 15px 0; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; resize: vertical;"></textarea>
+                <div class="form-actions">
+                    <button onclick="sendGift()" class="auth-btn primary" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🎁 Send Gift</button>
+                    <button onclick="closeGiftModal()" class="auth-btn" style="background: #ccc;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/auth-guard.js';
+        import authManager from './js/auth.js';
+        import { db, collection, getDocs, addDoc, doc, getDoc, query, where, orderBy, onSnapshot } from './js/firebase-config.js';
+
+        let allUsers = [];
+        let currentUser = null;
+        let selectedGift = null;
+        let selectedRecipient = null;
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, 10000);
+            }, 500);
+        }
+
+        async function loadUsers() {
+            try {
+                currentUser = authManager.currentUser;
+                if (!currentUser) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const usersRef = collection(db, 'users');
+                const snapshot = await getDocs(usersRef);
+                
+                allUsers = [];
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    // Don't include current user
+                    if (userData.uid !== currentUser.uid) {
+                        allUsers.push({
+                            id: doc.id,
+                            ...userData
+                        });
+                    }
+                });
+
+                displayUsers(allUsers);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showNoUsers();
+            }
+        }
+
+        function displayUsers(users) {
+            const loading = document.getElementById('loading');
+            const usersGrid = document.getElementById('users-grid');
+            const noUsers = document.getElementById('no-users');
+
+            loading.style.display = 'none';
+
+            if (users.length === 0) {
+                showNoUsers();
+                return;
+            }
+
+            usersGrid.style.display = 'grid';
+            noUsers.style.display = 'none';
+
+            usersGrid.innerHTML = users.map(user => `
+                <div class="user-card">
+                    <img src="${user.photoURL || 'https://via.placeholder.com/80x80/ff6b9d/white?text=' + (user.displayName ? user.displayName.charAt(0) : '?')}" 
+                         alt="${user.displayName || 'User'}" 
+                         class="user-avatar"
+                         onerror="this.src='https://via.placeholder.com/80x80/ff6b9d/white?text=' + encodeURIComponent('${(user.displayName || 'User').charAt(0)}')">
+                    <div class="user-name">${user.displayName || 'Anonymous User'}</div>
+                    <div class="user-bio">${user.bio || 'Spreading love and positivity! 💕'}</div>
+                    <div class="user-actions">
+                        <button class="action-btn message-btn" onclick="openMessageModal('${user.uid}', '${user.displayName || 'Anonymous User'}', '${user.photoURL || ''}')">
+                            💬 Message
+                        </button>
+                        <button class="action-btn gift-btn" onclick="openGiftModal('${user.uid}', '${user.displayName || 'Anonymous User'}', '${user.photoURL || ''}')">
+                            🎁 Send Gift
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showNoUsers() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('users-grid').style.display = 'none';
+            document.getElementById('no-users').style.display = 'block';
+        }
+
+        function searchUsers() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filteredUsers = allUsers.filter(user => 
+                (user.displayName || '').toLowerCase().includes(searchTerm) ||
+                (user.bio || '').toLowerCase().includes(searchTerm)
+            );
+            displayUsers(filteredUsers);
+        }
+
+        // Message Modal Functions
+        window.openMessageModal = function(userId, userName, userPhoto) {
+            selectedRecipient = { id: userId, name: userName, photo: userPhoto };
+            document.getElementById('message-recipient').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="${userPhoto || 'https://via.placeholder.com/50x50/ff6b9d/white?text=' + userName.charAt(0)}" 
+                         style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary-color);">
+                    <div>
+                        <strong>To: ${userName}</strong>
+                        <div style="font-size: 0.9em; color: #666;">Send a heartfelt message</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('message-modal').style.display = 'block';
+        }
+
+        window.closeMessageModal = function() {
+            document.getElementById('message-modal').style.display = 'none';
+            document.getElementById('message-content').value = '';
+            selectedRecipient = null;
+        }
+
+        window.sendMessage = async function() {
+            if (!selectedRecipient) return;
+
+            const content = document.getElementById('message-content').value.trim();
+            if (!content) {
+                alert('Please write a message');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'messages'), {
+                    from: currentUser.uid,
+                    fromName: currentUser.displayName || 'Anonymous',
+                    fromPhoto: currentUser.photoURL || '',
+                    to: selectedRecipient.id,
+                    toName: selectedRecipient.name,
+                    content: content,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                });
+
+                alert('Message sent successfully! 💌');
+                closeMessageModal();
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Please try again.');
+            }
+        }
+
+        // Gift Modal Functions
+        window.openGiftModal = function(userId, userName, userPhoto) {
+            selectedRecipient = { id: userId, name: userName, photo: userPhoto };
+            selectedGift = null;
+            document.getElementById('gift-recipient').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="${userPhoto || 'https://via.placeholder.com/50x50/ff6b9d/white?text=' + userName.charAt(0)}" 
+                         style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary-color);">
+                    <div>
+                        <strong>Send Gift to: ${userName}</strong>
+                        <div style="font-size: 0.9em; color: #666;">Choose a special gift</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('selected-gift').innerHTML = '';
+            document.getElementById('gift-modal').style.display = 'block';
+        }
+
+        window.closeGiftModal = function() {
+            document.getElementById('gift-modal').style.display = 'none';
+            document.getElementById('gift-message').value = '';
+            selectedGift = null;
+            selectedRecipient = null;
+            // Reset gift selection
+            document.querySelectorAll('.gift-option').forEach(btn => btn.classList.remove('selected'));
+        }
+
+        window.selectGift = function(emoji, name) {
+            selectedGift = { emoji, name };
+            document.getElementById('selected-gift').innerHTML = `Selected: ${emoji} ${name}`;
+            // Visual feedback
+            document.querySelectorAll('.gift-option').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        window.sendGift = async function() {
+            if (!selectedRecipient || !selectedGift) {
+                alert('Please select a gift first');
+                return;
+            }
+
+            const message = document.getElementById('gift-message').value.trim();
+
+            try {
+                await addDoc(collection(db, 'gifts'), {
+                    from: currentUser.uid,
+                    fromName: currentUser.displayName || 'Anonymous',
+                    fromPhoto: currentUser.photoURL || '',
+                    to: selectedRecipient.id,
+                    toName: selectedRecipient.name,
+                    gift: selectedGift,
+                    message: message || `Here's a special ${selectedGift.name} for you! 💕`,
+                    timestamp: new Date().toISOString(),
+                    opened: false
+                });
+
+                alert(`${selectedGift.emoji} Gift sent successfully! ${selectedGift.emoji}`);
+                closeGiftModal();
+            } catch (error) {
+                console.error('Error sending gift:', error);
+                alert('Failed to send gift. Please try again.');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            loadUsers();
+
+            // Setup search functionality
+            document.getElementById('search-input').addEventListener('input', searchUsers);
+
+            // Setup gift option styling
+            const style = document.createElement('style');
+            style.textContent = `
+                .gift-option {
+                    background: rgba(255, 255, 255, 0.9);
+                    border: 2px solid #e0e0e0;
+                    border-radius: 10px;
+                    padding: 10px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    text-align: center;
+                    font-size: 1.5em;
+                }
+                .gift-option:hover {
+                    transform: scale(1.05);
+                    border-color: var(--primary-color);
+                }
+                .gift-option.selected {
+                    border-color: var(--primary-color);
+                    background: rgba(255, 107, 157, 0.1);
+                    transform: scale(1.05);
+                }
+                .gift-option small {
+                    font-size: 0.6em;
+                    color: #666;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Background music handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            
+            function playMusic() {
+                if (music) {
+                    music.volume = 0.3;
+                    music.play().then(() => {
+                        console.log('Background music started playing');
+                    }).catch(error => {
+                        console.log('Could not autoplay audio:', error);
+                        document.addEventListener('click', function playOnClick() {
+                            music.play().then(() => {
+                                console.log('Background music started after user click');
+                                document.removeEventListener('click', playOnClick);
+                            }).catch(err => console.log('Still could not play audio:', err));
+                        }, { once: true });
+                    });
+                }
+            }
+            
+            playMusic();
+        });
+    </script>
+</body>
+</html>

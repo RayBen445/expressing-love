@@ -18,6 +18,38 @@
     padding-top: 80px;
   }
 
+  /* Back to Home Button */
+  .back-home {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--primary-color, #ff6b9d);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+  }
+
+  .back-home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 107, 157, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    .back-home {
+      position: relative;
+      display: block;
+      text-align: center;
+      margin-bottom: 20px;
+      left: auto;
+      top: auto;
+    }
+  }
+
   /* Navigation Styles */
   .main-nav {
     position: fixed;
