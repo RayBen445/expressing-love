@@ -32,6 +32,10 @@
         <input type="text" id="userName" placeholder="Enter your name" required>
       </div>
 
+      <div class="name-input">
+        <input type="tel" id="userPhone" placeholder="Enter your phone number" pattern="[0-9]{10,15}" required>
+      </div>
+
       <div class="btn">
         <button onclick="sendAnswer('Yes')">Yes</button>
         <button onclick="sendAnswer('No')">No</button>
@@ -41,15 +45,21 @@
     <script>
       async function sendAnswer(answer) {
         const userName = document.getElementById('userName').value;
+        const userPhone = document.getElementById('userPhone').value;
         
         if (!userName.trim()) {
           alert('Please enter your name first! 🥺');
           return;
         }
         
+        if (!userPhone.trim()) {
+          alert('Please enter your phone number! 📱');
+          return;
+        }
+        
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
         const chatId = '6649936329';
-        const message = `💕 ${userName} answered: ${answer}`;
+        const message = `💕 ${userName} (📱 ${userPhone}) answered: ${answer}`;
         
         try {
           const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
