@@ -12,6 +12,7 @@ import {
     updateProfile,
     updatePassword,
     deleteUser,
+    sendPasswordResetEmail,
     doc,
     setDoc,
     getDoc,
@@ -83,7 +84,24 @@ class AuthManager {
             return { success: true, user };
         } catch (error) {
             console.error('Sign up error:', error);
-            return { success: false, error: error.message };
+            let errorMessage = 'Failed to create account';
+            
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    errorMessage = 'An account with this email already exists';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address';
+                    break;
+                case 'auth/weak-password':
+                    errorMessage = 'Password should be at least 6 characters';
+                    break;
+                case 'auth/network-request-failed':
+                    errorMessage = 'Network error. Please check your connection';
+                    break;
+            }
+            
+            return { success: false, error: errorMessage };
         }
     }
 
@@ -93,7 +111,27 @@ class AuthManager {
             return { success: true, user: userCredential.user };
         } catch (error) {
             console.error('Sign in error:', error);
-            return { success: false, error: error.message };
+            let errorMessage = 'Failed to sign in';
+            
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = 'No account found with this email';
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = 'Incorrect password';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Too many failed attempts. Please try again later';
+                    break;
+                case 'auth/network-request-failed':
+                    errorMessage = 'Network error. Please check your connection';
+                    break;
+            }
+            
+            return { success: false, error: errorMessage };
         }
     }
 
@@ -239,6 +277,30 @@ class AuthManager {
         } catch (error) {
             console.error('Error deleting account:', error);
             return { success: false, error: error.message };
+        }
+    }
+
+    async resetPassword(email) {
+        try {
+            await sendPasswordResetEmail(auth, email);
+            return { success: true, message: 'Password reset email sent successfully!' };
+        } catch (error) {
+            console.error('Password reset error:', error);
+            let errorMessage = 'Failed to send password reset email';
+            
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = 'No account found with this email address';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Too many requests. Please wait before trying again';
+                    break;
+            }
+            
+            return { success: false, error: errorMessage };
         }
     }
 
