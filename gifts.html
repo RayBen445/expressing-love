@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Gifts - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Navigation Header -->
+    <nav class="dashboard-nav">
+        <div class="nav-content">
+            <h2>💕 Expressing Love</h2>
+            <div id="user-info" class="user-info"></div>
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="login.html" class="nav-btn">Login</a>
+                <a href="signup.html" class="nav-btn primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container protected-content" style="margin-top: 100px; max-width: 1200px;">
+        <div class="page-header">
+            <h1>🎁 Virtual Gifts</h1>
+            <p>Send beautiful virtual gifts to express your love</p>
+        </div>
+
+        <!-- Gift Categories -->
+        <div class="gift-categories">
+            <button class="category-btn active" onclick="filterGifts('all')">All Gifts</button>
+            <button class="category-btn" onclick="filterGifts('flowers')">🌸 Flowers</button>
+            <button class="category-btn" onclick="filterGifts('hearts')">💖 Hearts</button>
+            <button class="category-btn" onclick="filterGifts('jewelry')">💍 Jewelry</button>
+            <button class="category-btn" onclick="filterGifts('cute')">🧸 Cute</button>
+            <button class="category-btn" onclick="filterGifts('food')">🍫 Sweet Treats</button>
+            <button class="category-btn" onclick="filterGifts('cards')">📜 Cards</button>
+        </div>
+
+        <!-- Gifts Gallery -->
+        <div class="gifts-gallery" id="gifts-gallery">
+            <!-- Gifts will be dynamically loaded here -->
+        </div>
+
+        <!-- Send Gift Modal -->
+        <div id="send-gift-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💝 Send Virtual Gift</h3>
+                    <span class="close" onclick="closeModal('send-gift-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="gift-preview" id="gift-preview">
+                        <!-- Selected gift will be shown here -->
+                    </div>
+                    
+                    <form id="send-gift-form">
+                        <input type="hidden" id="selected-gift-id">
+                        
+                        <div class="form-group">
+                            <label for="recipient-name">💕 Recipient Name</label>
+                            <input type="text" id="recipient-name" placeholder="Enter recipient's name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gift-message">💌 Personal Message</label>
+                            <textarea id="gift-message" rows="4" placeholder="Write a sweet message to go with your gift..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="delivery-option">📅 Delivery</label>
+                            <select id="delivery-option">
+                                <option value="now">💖 Send Now</option>
+                                <option value="scheduled">⏰ Schedule for Later</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="schedule-group" style="display: none;">
+                            <label for="schedule-date">📆 Schedule Date & Time</label>
+                            <input type="datetime-local" id="schedule-date">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary">🎁 Send Gift</button>
+                            <button type="button" onclick="closeModal('send-gift-modal')" class="btn secondary">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Received Gifts Section -->
+        <div class="received-gifts-section">
+            <h2>📦 Your Received Gifts</h2>
+            <div id="received-gifts-container" class="received-gifts-container">
+                <!-- Received gifts will be loaded here -->
+            </div>
+            <div id="no-received-gifts" class="empty-state" style="display: none;">
+                <div class="empty-icon">📦</div>
+                <h3>No gifts received yet</h3>
+                <p>Share your profile with someone special to receive virtual gifts!</p>
+            </div>
+        </div>
+
+        <!-- Sent Gifts Section -->
+        <div class="sent-gifts-section">
+            <h2>📤 Your Sent Gifts</h2>
+            <div id="sent-gifts-container" class="sent-gifts-container">
+                <!-- Sent gifts will be loaded here -->
+            </div>
+            <div id="no-sent-gifts" class="empty-state" style="display: none;">
+                <div class="empty-icon">📤</div>
+                <h3>No gifts sent yet</h3>
+                <p>Send your first virtual gift to someone special!</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="page-navigation">
+            <a href="dashboard.html" class="btn secondary">← Back to Dashboard</a>
+            <a href="confession.html" class="btn primary">💌 Create Confession</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import authManager from './js/auth.js';
+        import { db, collection, addDoc, query, where, orderBy, getDocs } from './js/firebase-config.js';
+
+        let currentUser = null;
+        let selectedGift = null;
+        let allGifts = [];
+
+        // Virtual Gifts Data
+        const virtualGifts = [
+            // Flowers
+            { id: 'flower_roses', name: 'Red Roses Bouquet', emoji: '🌹', category: 'flowers', description: 'A beautiful bouquet of red roses' },
+            { id: 'flower_tulips', name: 'Spring Tulips', emoji: '🌷', category: 'flowers', description: 'Fresh and colorful tulips' },
+            { id: 'flower_sunflower', name: 'Bright Sunflower', emoji: '🌻', category: 'flowers', description: 'A cheerful sunflower' },
+            { id: 'flower_cherry', name: 'Cherry Blossoms', emoji: '🌸', category: 'flowers', description: 'Delicate cherry blossoms' },
+            
+            // Hearts
+            { id: 'heart_red', name: 'Red Heart', emoji: '❤️', category: 'hearts', description: 'A classic red heart' },
+            { id: 'heart_pink', name: 'Pink Hearts', emoji: '💕', category: 'hearts', description: 'Two pink hearts' },
+            { id: 'heart_sparkle', name: 'Sparkling Heart', emoji: '💖', category: 'hearts', description: 'A sparkling heart' },
+            { id: 'heart_arrow', name: 'Heart with Arrow', emoji: '💘', category: 'hearts', description: 'Cupid\'s arrow through heart' },
+            
+            // Jewelry
+            { id: 'jewelry_ring', name: 'Diamond Ring', emoji: '💍', category: 'jewelry', description: 'A beautiful diamond ring' },
+            { id: 'jewelry_crown', name: 'Royal Crown', emoji: '👑', category: 'jewelry', description: 'A golden crown for your queen/king' },
+            { id: 'jewelry_gem', name: 'Precious Gem', emoji: '💎', category: 'jewelry', description: 'A sparkling precious gem' },
+            
+            // Cute
+            { id: 'cute_bear', name: 'Teddy Bear', emoji: '🧸', category: 'cute', description: 'A soft and cuddly teddy bear' },
+            { id: 'cute_puppy', name: 'Cute Puppy', emoji: '🐶', category: 'cute', description: 'An adorable little puppy' },
+            { id: 'cute_cat', name: 'Sweet Cat', emoji: '🐱', category: 'cute', description: 'A sweet little cat' },
+            { id: 'cute_unicorn', name: 'Magic Unicorn', emoji: '🦄', category: 'cute', description: 'A magical unicorn' },
+            
+            // Food/Sweet Treats
+            { id: 'food_chocolate', name: 'Chocolate Box', emoji: '🍫', category: 'food', description: 'A box of delicious chocolates' },
+            { id: 'food_cake', name: 'Love Cake', emoji: '🎂', category: 'food', description: 'A sweet celebration cake' },
+            { id: 'food_candy', name: 'Sweet Candy', emoji: '🍬', category: 'food', description: 'Colorful sweet candy' },
+            { id: 'food_lollipop', name: 'Heart Lollipop', emoji: '🍭', category: 'food', description: 'A heart-shaped lollipop' },
+            
+            // Cards
+            { id: 'card_love', name: 'Love Letter', emoji: '💌', category: 'cards', description: 'A romantic love letter' },
+            { id: 'card_valentine', name: 'Valentine Card', emoji: '💝', category: 'cards', description: 'A special valentine\'s card' },
+            { id: 'card_kiss', name: 'Kiss Card', emoji: '💋', category: 'cards', description: 'A card with a sweet kiss' }
+        ];
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        function displayGifts(gifts = virtualGifts) {
+            const gallery = document.getElementById('gifts-gallery');
+            gallery.innerHTML = '';
+
+            gifts.forEach(gift => {
+                const giftCard = document.createElement('div');
+                giftCard.className = 'gift-card';
+                giftCard.innerHTML = `
+                    <div class="gift-emoji">${gift.emoji}</div>
+                    <h4>${gift.name}</h4>
+                    <p>${gift.description}</p>
+                    <button onclick="selectGift('${gift.id}')" class="gift-send-btn">
+                        🎁 Send Gift
+                    </button>
+                `;
+                gallery.appendChild(giftCard);
+            });
+        }
+
+        window.filterGifts = function(category) {
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter gifts
+            const filteredGifts = category === 'all' ? virtualGifts : virtualGifts.filter(g => g.category === category);
+            displayGifts(filteredGifts);
+        };
+
+        window.selectGift = function(giftId) {
+            selectedGift = virtualGifts.find(g => g.id === giftId);
+            if (!selectedGift) return;
+
+            // Update modal with selected gift
+            document.getElementById('selected-gift-id').value = giftId;
+            document.getElementById('gift-preview').innerHTML = `
+                <div class="selected-gift">
+                    <div class="gift-emoji-large">${selectedGift.emoji}</div>
+                    <h3>${selectedGift.name}</h3>
+                    <p>${selectedGift.description}</p>
+                </div>
+            `;
+
+            // Show modal
+            document.getElementById('send-gift-modal').style.display = 'flex';
+        };
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        };
+
+        async function handleSendGift(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('Please log in to send gifts!');
+                return;
+            }
+
+            if (!selectedGift) {
+                alert('No gift selected!');
+                return;
+            }
+
+            const recipientName = document.getElementById('recipient-name').value;
+            const message = document.getElementById('gift-message').value;
+            const deliveryOption = document.getElementById('delivery-option').value;
+            const scheduleDate = document.getElementById('schedule-date').value;
+
+            if (!recipientName.trim()) {
+                alert('Please enter recipient name!');
+                return;
+            }
+
+            try {
+                const giftData = {
+                    senderId: currentUser.uid,
+                    senderName: (await authManager.getUserProfile()).displayName || currentUser.email,
+                    recipientName: recipientName,
+                    giftId: selectedGift.id,
+                    giftName: selectedGift.name,
+                    giftEmoji: selectedGift.emoji,
+                    giftDescription: selectedGift.description,
+                    message: message,
+                    deliveryOption: deliveryOption,
+                    scheduleDate: scheduleDate || null,
+                    sentAt: new Date(),
+                    status: deliveryOption === 'now' ? 'delivered' : 'scheduled'
+                };
+
+                await addDoc(collection(db, 'virtualGifts'), giftData);
+                
+                // Reset form
+                document.getElementById('send-gift-form').reset();
+                closeModal('send-gift-modal');
+                
+                // Reload sent gifts
+                await loadSentGifts();
+                
+                showToast(`Gift sent to ${recipientName}! 🎁`, 'success');
+                
+                // Show confetti animation
+                showConfetti();
+                
+            } catch (error) {
+                console.error('Error sending gift:', error);
+                showToast('Error sending gift. Please try again.', 'error');
+            }
+        }
+
+        async function loadReceivedGifts() {
+            if (!currentUser) return;
+
+            try {
+                const profile = await authManager.getUserProfile();
+                const displayName = profile?.displayName || currentUser.email;
+                
+                const giftsQuery = query(
+                    collection(db, 'virtualGifts'),
+                    where('recipientName', '==', displayName),
+                    orderBy('sentAt', 'desc')
+                );
+                const giftsSnapshot = await getDocs(giftsQuery);
+                
+                const container = document.getElementById('received-gifts-container');
+                const noGiftsDiv = document.getElementById('no-received-gifts');
+
+                if (giftsSnapshot.empty) {
+                    container.style.display = 'none';
+                    noGiftsDiv.style.display = 'block';
+                    return;
+                }
+
+                container.style.display = 'grid';
+                noGiftsDiv.style.display = 'none';
+                container.innerHTML = '';
+
+                giftsSnapshot.forEach((doc) => {
+                    const gift = doc.data();
+                    const giftCard = document.createElement('div');
+                    giftCard.className = 'received-gift-card';
+                    giftCard.innerHTML = `
+                        <div class="gift-header">
+                            <div class="gift-emoji">${gift.giftEmoji}</div>
+                            <div class="gift-info">
+                                <h4>${gift.giftName}</h4>
+                                <p class="sender">From: ${gift.senderName}</p>
+                                <p class="date">${new Date(gift.sentAt.toDate()).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        ${gift.message ? `<div class="gift-message">"${gift.message}"</div>` : ''}
+                    `;
+                    container.appendChild(giftCard);
+                });
+
+            } catch (error) {
+                console.error('Error loading received gifts:', error);
+            }
+        }
+
+        async function loadSentGifts() {
+            if (!currentUser) return;
+
+            try {
+                const giftsQuery = query(
+                    collection(db, 'virtualGifts'),
+                    where('senderId', '==', currentUser.uid),
+                    orderBy('sentAt', 'desc')
+                );
+                const giftsSnapshot = await getDocs(giftsQuery);
+                
+                const container = document.getElementById('sent-gifts-container');
+                const noGiftsDiv = document.getElementById('no-sent-gifts');
+
+                if (giftsSnapshot.empty) {
+                    container.style.display = 'none';
+                    noGiftsDiv.style.display = 'block';
+                    return;
+                }
+
+                container.style.display = 'grid';
+                noGiftsDiv.style.display = 'none';
+                container.innerHTML = '';
+
+                giftsSnapshot.forEach((doc) => {
+                    const gift = doc.data();
+                    const giftCard = document.createElement('div');
+                    giftCard.className = 'sent-gift-card';
+                    giftCard.innerHTML = `
+                        <div class="gift-header">
+                            <div class="gift-emoji">${gift.giftEmoji}</div>
+                            <div class="gift-info">
+                                <h4>${gift.giftName}</h4>
+                                <p class="recipient">To: ${gift.recipientName}</p>
+                                <p class="date">${new Date(gift.sentAt.toDate()).toLocaleDateString()}</p>
+                                <p class="status ${gift.status}">${gift.status === 'delivered' ? '✅ Delivered' : '⏰ Scheduled'}</p>
+                            </div>
+                        </div>
+                        ${gift.message ? `<div class="gift-message">"${gift.message}"</div>` : ''}
+                    `;
+                    container.appendChild(giftCard);
+                });
+
+            } catch (error) {
+                console.error('Error loading sent gifts:', error);
+            }
+        }
+
+        function showConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            document.body.appendChild(confettiContainer);
+
+            const colors = ['#ff6b9d', '#ff9a9e', '#ffc1cc', '#ffeb3b', '#4caf50', '#2196f3'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                confettiContainer.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                document.body.removeChild(confettiContainer);
+            }, 5000);
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            displayGifts();
+            
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                if (currentUser) {
+                    loadReceivedGifts();
+                    loadSentGifts();
+                }
+            }, 1000);
+
+            // Event listeners
+            document.getElementById('send-gift-form').addEventListener('submit', handleSendGift);
+            
+            document.getElementById('delivery-option').addEventListener('change', (e) => {
+                const scheduleGroup = document.getElementById('schedule-group');
+                if (e.target.value === 'scheduled') {
+                    scheduleGroup.style.display = 'block';
+                } else {
+                    scheduleGroup.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .page-header h1 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 10px;
+        }
+
+        .gift-categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary-color, #ff6b9d);
+            background: transparent;
+            color: var(--primary-color, #ff6b9d);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+        }
+
+        .gifts-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .gift-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255, 107, 157, 0.2);
+        }
+
+        .gift-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 107, 157, 0.2);
+        }
+
+        .gift-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .gift-emoji-large {
+            font-size: 5rem;
+            margin-bottom: 15px;
+        }
+
+        .gift-card h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .gift-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .gift-send-btn {
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .gift-send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .selected-gift {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .received-gifts-section,
+        .sent-gifts-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .received-gifts-section h2,
+        .sent-gifts-section h2 {
+            color: var(--primary-color, #ff6b9d);
+            margin-bottom: 25px;
+        }
+
+        .received-gifts-container,
+        .sent-gifts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .received-gift-card,
+        .sent-gift-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid rgba(255, 107, 157, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .received-gift-card:hover,
+        .sent-gift-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.2);
+        }
+
+        .gift-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .gift-info h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .gift-info p {
+            margin: 2px 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .sender,
+        .recipient {
+            font-weight: bold;
+            color: var(--primary-color, #ff6b9d);
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .status.delivered {
+            color: #4caf50;
+        }
+
+        .status.scheduled {
+            color: #ff9800;
+        }
+
+        .gift-message {
+            background: rgba(255, 107, 157, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            font-style: italic;
+            color: #333;
+            border-left: 3px solid var(--primary-color, #ff6b9d);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        /* Confetti Animation */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti-fall linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .gift-categories {
+                gap: 8px;
+            }
+            
+            .category-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .gifts-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .gift-emoji {
+                font-size: 2.5rem;
+            }
+            
+            .page-navigation {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>
