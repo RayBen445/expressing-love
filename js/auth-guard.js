@@ -29,7 +29,14 @@ class AuthGuard {
             'date-calculator.html',
             'confession.html',
             'confessions.html',
-            'memory-book.html'
+            'memory-book.html',
+            'users.html',
+            'messages.html',
+            'admin.html',
+            'chat.html',
+            'polls.html',
+            'bucket-list.html',
+            'date-planner.html'
         ];
         
         this.init();

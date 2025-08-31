@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Polls - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <style>
+        .polls-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        .polls-header {
+            text-align: center;
+            margin: 80px 0 30px 0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .create-poll-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color, #ff6b9d);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.2);
+        }
+
+        .poll-options {
+            margin-top: 15px;
+        }
+
+        .option-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .option-input input {
+            flex: 1;
+        }
+
+        .remove-option {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .remove-option:hover {
+            transform: scale(1.1);
+            background: #ff5252;
+        }
+
+        .add-option {
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .add-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .create-poll-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .create-poll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .polls-list {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .poll-card {
+            background: linear-gradient(135deg, #ffeef8, #fff5f8);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .poll-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .poll-question {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .poll-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color, #ff6b9d);
+            object-fit: cover;
+        }
+
+        .poll-options-list {
+            margin-bottom: 15px;
+        }
+
+        .poll-option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .poll-option:hover {
+            border-color: var(--primary-color, #ff6b9d);
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        .poll-option.voted {
+            border-color: var(--primary-color, #ff6b9d);
+            background: linear-gradient(135deg, #ff6b9d, #ff9a9e);
+            color: white;
+        }
+
+        .poll-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-votes {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .poll-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .poll-date {
+            font-style: italic;
+        }
+
+        .poll-votes-total {
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .polls-container {
+                padding: 15px;
+            }
+            
+            .back-home {
+                position: relative;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .option-input {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .remove-option {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto" style="display: none;">
+        <source src="https://files.catbox.moe/4vb6xe.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
+
+    <div class="polls-container">
+        <div class="polls-header">
+            <h1>📊 Love Polls</h1>
+            <p>Create fun relationship polls and vote on others' questions</p>
+        </div>
+
+        <div class="create-poll-section">
+            <h3>✨ Create a New Poll</h3>
+            <form id="create-poll-form">
+                <div class="form-group">
+                    <label for="poll-question">💭 What's your question?</label>
+                    <input type="text" id="poll-question" class="form-input" 
+                           placeholder="e.g., What's the most romantic date idea?" required>
+                </div>
+
+                <div class="form-group">
+                    <label>📝 Poll Options (minimum 2, maximum 6)</label>
+                    <div class="poll-options" id="poll-options">
+                        <div class="option-input">
+                            <input type="text" class="form-input option-text" 
+                                   placeholder="Option 1" required>
+                        </div>
+                        <div class="option-input">
+                            <input type="text" class="form-input option-text" 
+                                   placeholder="Option 2" required>
+                        </div>
+                    </div>
+                    <button type="button" class="add-option" onclick="addPollOption()">
+                        ➕ Add Option
+                    </button>
+                </div>
+
+                <button type="submit" class="create-poll-btn">
+                    🗳️ Create Poll
+                </button>
+            </form>
+        </div>
+
+        <div class="polls-list">
+            <h3>🗳️ Active Love Polls</h3>
+            <div id="polls-container">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <h4>📊 Loading polls...</h4>
+                    <p>Getting the latest relationship questions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/auth-guard.js';
+        import authManager from './js/auth.js';
+        import { db, collection, getDocs, addDoc, doc, updateDoc, arrayUnion, query, orderBy, onSnapshot } from './js/firebase-config.js';
+
+        let currentUser = null;
+        let userVotes = new Set();
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, 10000);
+            }, 500);
+        }
+
+        window.addPollOption = function() {
+            const pollOptions = document.getElementById('poll-options');
+            const currentOptions = pollOptions.querySelectorAll('.option-input').length;
+            
+            if (currentOptions >= 6) {
+                alert('Maximum 6 options allowed');
+                return;
+            }
+
+            const newOption = document.createElement('div');
+            newOption.className = 'option-input';
+            newOption.innerHTML = `
+                <input type="text" class="form-input option-text" 
+                       placeholder="Option ${currentOptions + 1}" required>
+                <button type="button" class="remove-option" onclick="removePollOption(this)">✕</button>
+            `;
+            pollOptions.appendChild(newOption);
+        }
+
+        window.removePollOption = function(button) {
+            const pollOptions = document.getElementById('poll-options');
+            const currentOptions = pollOptions.querySelectorAll('.option-input').length;
+            
+            if (currentOptions <= 2) {
+                alert('Minimum 2 options required');
+                return;
+            }
+
+            button.parentElement.remove();
+            
+            // Update placeholder numbers
+            const options = pollOptions.querySelectorAll('.option-text');
+            options.forEach((option, index) => {
+                if (!option.value) {
+                    option.placeholder = `Option ${index + 1}`;
+                }
+            });
+        }
+
+        async function createPoll(event) {
+            event.preventDefault();
+            
+            const question = document.getElementById('poll-question').value.trim();
+            const optionInputs = document.querySelectorAll('.option-text');
+            const options = [];
+            
+            optionInputs.forEach(input => {
+                const value = input.value.trim();
+                if (value) {
+                    options.push({
+                        text: value,
+                        votes: 0,
+                        voters: []
+                    });
+                }
+            });
+
+            if (options.length < 2) {
+                alert('Please provide at least 2 options');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'polls'), {
+                    question: question,
+                    options: options,
+                    authorId: currentUser.uid,
+                    authorName: currentUser.displayName || 'Anonymous',
+                    authorPhoto: currentUser.photoURL || '',
+                    createdAt: new Date().toISOString(),
+                    totalVotes: 0
+                });
+
+                // Reset form
+                document.getElementById('create-poll-form').reset();
+                document.getElementById('poll-options').innerHTML = `
+                    <div class="option-input">
+                        <input type="text" class="form-input option-text" 
+                               placeholder="Option 1" required>
+                    </div>
+                    <div class="option-input">
+                        <input type="text" class="form-input option-text" 
+                               placeholder="Option 2" required>
+                    </div>
+                `;
+
+                alert('Poll created successfully! 🗳️');
+            } catch (error) {
+                console.error('Error creating poll:', error);
+                alert('Failed to create poll. Please try again.');
+            }
+        }
+
+        async function loadPolls() {
+            const pollsQuery = query(
+                collection(db, 'polls'),
+                orderBy('createdAt', 'desc')
+            );
+
+            onSnapshot(pollsQuery, (snapshot) => {
+                const polls = [];
+                snapshot.forEach(doc => {
+                    polls.push({ id: doc.id, ...doc.data() });
+                });
+                displayPolls(polls);
+            });
+        }
+
+        function displayPolls(polls) {
+            const container = document.getElementById('polls-container');
+            
+            if (polls.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <h4>📊 No polls yet</h4>
+                        <p>Be the first to create a fun relationship poll!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = polls.map(poll => {
+                const hasVoted = poll.options.some(option => 
+                    option.voters && option.voters.includes(currentUser.uid)
+                );
+                
+                const pollDate = new Date(poll.createdAt).toLocaleDateString();
+                
+                return `
+                    <div class="poll-card">
+                        <div class="poll-question">${poll.question}</div>
+                        
+                        <div class="poll-author">
+                            <img src="${poll.authorPhoto || 'https://via.placeholder.com/30x30/ff6b9d/white?text=' + (poll.authorName ? poll.authorName.charAt(0) : '?')}" 
+                                 alt="${poll.authorName}" 
+                                 class="author-avatar">
+                            <span>by ${poll.authorName || 'Anonymous'}</span>
+                        </div>
+
+                        <div class="poll-options-list">
+                            ${poll.options.map((option, index) => {
+                                const percentage = poll.totalVotes > 0 ? Math.round((option.votes / poll.totalVotes) * 100) : 0;
+                                const isVoted = option.voters && option.voters.includes(currentUser.uid);
+                                
+                                return `
+                                    <div class="poll-option ${hasVoted ? 'disabled' : ''} ${isVoted ? 'voted' : ''}" 
+                                         onclick="${hasVoted ? '' : `voteOnPoll('${poll.id}', ${index})`}">
+                                        <div>
+                                            <div>${option.text}</div>
+                                            ${hasVoted ? `<div style="font-size: 0.8em; margin-top: 5px;">📊 ${percentage}% (${option.votes} votes)</div>` : ''}
+                                        </div>
+                                        <div class="option-votes">
+                                            ${hasVoted ? `${percentage}%` : '🗳️'}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <div class="poll-stats">
+                            <div class="poll-date">📅 ${pollDate}</div>
+                            <div class="poll-votes-total">🗳️ ${poll.totalVotes} total votes</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.voteOnPoll = async function(pollId, optionIndex) {
+            if (!currentUser) return;
+
+            try {
+                const pollRef = doc(db, 'polls', pollId);
+                const pollDoc = await doc(pollRef).get();
+                
+                if (!pollDoc.exists()) return;
+                
+                const pollData = pollDoc.data();
+                const updatedOptions = [...pollData.options];
+                
+                // Check if user already voted
+                const hasVoted = updatedOptions.some(option => 
+                    option.voters && option.voters.includes(currentUser.uid)
+                );
+                
+                if (hasVoted) {
+                    alert('You have already voted on this poll!');
+                    return;
+                }
+
+                // Add vote
+                updatedOptions[optionIndex].votes++;
+                if (!updatedOptions[optionIndex].voters) {
+                    updatedOptions[optionIndex].voters = [];
+                }
+                updatedOptions[optionIndex].voters.push(currentUser.uid);
+
+                // Update total votes
+                const totalVotes = updatedOptions.reduce((sum, option) => sum + option.votes, 0);
+
+                await updateDoc(pollRef, {
+                    options: updatedOptions,
+                    totalVotes: totalVotes
+                });
+
+                // Add to user votes set
+                userVotes.add(pollId);
+
+            } catch (error) {
+                console.error('Error voting on poll:', error);
+                alert('Failed to vote. Please try again.');
+            }
+        }
+
+        async function loadUserVotes() {
+            try {
+                const pollsSnapshot = await getDocs(collection(db, 'polls'));
+                pollsSnapshot.forEach(doc => {
+                    const pollData = doc.data();
+                    const hasVoted = pollData.options.some(option => 
+                        option.voters && option.voters.includes(currentUser.uid)
+                    );
+                    if (hasVoted) {
+                        userVotes.add(doc.id);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading user votes:', error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                if (currentUser) {
+                    loadUserVotes();
+                    loadPolls();
+                }
+            }, 1000);
+
+            // Setup form submission
+            document.getElementById('create-poll-form').addEventListener('submit', createPoll);
+        });
+
+        // Background music handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            
+            function playMusic() {
+                if (music) {
+                    music.volume = 0.3;
+                    music.play().then(() => {
+                        console.log('Background music started playing');
+                    }).catch(error => {
+                        console.log('Could not autoplay audio:', error);
+                        document.addEventListener('click', function playOnClick() {
+                            music.play().then(() => {
+                                console.log('Background music started after user click');
+                                document.removeEventListener('click', playOnClick);
+                            }).catch(err => console.log('Still could not play audio:', err));
+                        }, { once: true });
+                    });
+                }
+            }
+            
+            playMusic();
+        });
+    </script>
+</body>
+</html>

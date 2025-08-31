@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Chat - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <style>
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        .chat-header {
+            text-align: center;
+            margin: 80px 0 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-selection {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .room-card {
+            background: linear-gradient(135deg, #ffeef8, #fff5f8);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color, #ff6b9d);
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.2);
+        }
+
+        .room-card.active {
+            border-color: var(--primary-color, #ff6b9d);
+            background: linear-gradient(135deg, #ff6b9d, #ff9a9e);
+            color: white;
+        }
+
+        .room-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .room-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .room-description {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .room-users {
+            font-size: 0.8em;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .chat-room {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .chat-room-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(to bottom, #ffeef8, #fff5f8);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .message.own {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color, #ff6b9d);
+            object-fit: cover;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 70%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.own .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .message-text {
+            margin-bottom: 5px;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .chat-input-area {
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1em;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-color, #ff6b9d);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.2);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .online-users {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .users-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .user-item {
+            text-align: center;
+            padding: 15px;
+            background: #ffeef8;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .user-item:hover {
+            transform: translateY(-2px);
+            background: #ffcdd2;
+        }
+
+        .user-avatar-small {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color, #ff6b9d);
+            margin: 0 auto 8px;
+            object-fit: cover;
+        }
+
+        .user-name-small {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                padding: 15px;
+            }
+            
+            .back-home {
+                position: relative;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-room {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto" style="display: none;">
+        <source src="https://files.catbox.moe/4vb6xe.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>💬 Love Chat Rooms</h1>
+            <p>Connect with loved ones in real-time chat rooms</p>
+        </div>
+
+        <div class="room-selection">
+            <h3>🏠 Choose a Chat Room</h3>
+            <div class="room-grid" id="room-grid">
+                <div class="room-card" onclick="joinRoom('general', '💕 General Love Chat', 'Share love and positivity with everyone')">
+                    <div class="room-icon">💕</div>
+                    <div class="room-name">General Love Chat</div>
+                    <div class="room-description">Share love and positivity</div>
+                    <div class="room-users">👥 <span id="general-users">0</span> online</div>
+                </div>
+                
+                <div class="room-card" onclick="joinRoom('couples', '💑 Couples Corner', 'For couples to share experiences and advice')">
+                    <div class="room-icon">💑</div>
+                    <div class="room-name">Couples Corner</div>
+                    <div class="room-description">For couples to connect</div>
+                    <div class="room-users">👥 <span id="couples-users">0</span> online</div>
+                </div>
+                
+                <div class="room-card" onclick="joinRoom('dating', '💖 Dating Advice', 'Get and share dating tips and experiences')">
+                    <div class="room-icon">💖</div>
+                    <div class="room-name">Dating Advice</div>
+                    <div class="room-description">Tips and experiences</div>
+                    <div class="room-users">👥 <span id="dating-users">0</span> online</div>
+                </div>
+                
+                <div class="room-card" onclick="joinRoom('support', '🤗 Love Support', 'Support and encouragement for relationship challenges')">
+                    <div class="room-icon">🤗</div>
+                    <div class="room-name">Love Support</div>
+                    <div class="room-description">Relationship support</div>
+                    <div class="room-users">👥 <span id="support-users">0</span> online</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat-room" class="chat-room" style="display: none;">
+            <div class="chat-room-header">
+                <div>
+                    <h3 id="current-room-name">💕 General Love Chat</h3>
+                    <p id="current-room-description">Share love and positivity with everyone</p>
+                </div>
+                <button onclick="leaveRoom()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer;">
+                    🚪 Leave Room
+                </button>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be loaded here -->
+            </div>
+            
+            <div class="chat-input-area">
+                <textarea class="chat-input" id="chat-input" 
+                         placeholder="Type your message..." 
+                         onkeypress="handleKeyPress(event)"></textarea>
+                <button class="send-btn" onclick="sendChatMessage()">💌</button>
+            </div>
+        </div>
+
+        <div class="online-users">
+            <h3>👥 Online Users</h3>
+            <div class="users-list" id="online-users-list">
+                <!-- Online users will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/auth-guard.js';
+        import authManager from './js/auth.js';
+        import { db, collection, getDocs, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
+
+        let currentUser = null;
+        let currentRoom = null;
+        let unsubscribeMessages = null;
+        let unsubscribeUsers = null;
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, 10000);
+            }, 500);
+        }
+
+        async function loadRoomUsers() {
+            try {
+                // Get user counts for each room
+                const rooms = ['general', 'couples', 'dating', 'support'];
+                
+                for (const room of rooms) {
+                    const activeUsersQuery = query(
+                        collection(db, 'chatRooms'),
+                        where('room', '==', room),
+                        where('lastSeen', '>', new Date(Date.now() - 5 * 60 * 1000)) // Active in last 5 minutes
+                    );
+                    
+                    const snapshot = await getDocs(activeUsersQuery);
+                    const userCount = snapshot.size;
+                    
+                    const countElement = document.getElementById(`${room}-users`);
+                    if (countElement) {
+                        countElement.textContent = userCount;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading room users:', error);
+            }
+        }
+
+        window.joinRoom = async function(roomId, roomName, roomDescription) {
+            currentRoom = { id: roomId, name: roomName, description: roomDescription };
+            
+            // Update UI
+            document.getElementById('current-room-name').textContent = roomName;
+            document.getElementById('current-room-description').textContent = roomDescription;
+            document.getElementById('chat-room').style.display = 'flex';
+            
+            // Update room cards
+            document.querySelectorAll('.room-card').forEach(card => card.classList.remove('active'));
+            event.target.closest('.room-card').classList.add('active');
+
+            // Add user to room
+            try {
+                await addDoc(collection(db, 'chatRooms'), {
+                    room: roomId,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'Anonymous',
+                    userPhoto: currentUser.photoURL || '',
+                    lastSeen: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error('Error joining room:', error);
+            }
+
+            // Load messages and users
+            loadChatMessages();
+            loadOnlineUsers();
+        }
+
+        window.leaveRoom = function() {
+            if (unsubscribeMessages) unsubscribeMessages();
+            if (unsubscribeUsers) unsubscribeUsers();
+            
+            currentRoom = null;
+            document.getElementById('chat-room').style.display = 'none';
+            document.querySelectorAll('.room-card').forEach(card => card.classList.remove('active'));
+        }
+
+        function loadChatMessages() {
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            const messagesQuery = query(
+                collection(db, 'chatMessages'),
+                where('room', '==', currentRoom.id),
+                orderBy('timestamp', 'asc')
+            );
+
+            unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+                const messages = [];
+                snapshot.forEach(doc => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                displayChatMessages(messages);
+            });
+        }
+
+        function displayChatMessages(messages) {
+            const messagesArea = document.getElementById('chat-messages');
+            
+            if (messages.length === 0) {
+                messagesArea.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <h4>💬 Start the conversation!</h4>
+                        <p>Be the first to share some love in this room</p>
+                    </div>
+                `;
+                return;
+            }
+
+            messagesArea.innerHTML = messages.map(message => {
+                const isOwn = message.userId === currentUser.uid;
+                const messageTime = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div class="message ${isOwn ? 'own' : ''}">
+                        <img src="${message.userPhoto || 'https://via.placeholder.com/40x40/ff6b9d/white?text=' + (message.userName ? message.userName.charAt(0) : '?')}" 
+                             alt="${message.userName}" 
+                             class="message-avatar">
+                        <div class="message-content">
+                            ${!isOwn ? `<div class="message-sender">${message.userName}</div>` : ''}
+                            <div class="message-text">${message.content}</div>
+                            <div class="message-time">${messageTime}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll to bottom
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function loadOnlineUsers() {
+            if (unsubscribeUsers) unsubscribeUsers();
+
+            const usersQuery = query(
+                collection(db, 'chatRooms'),
+                where('room', '==', currentRoom.id),
+                where('lastSeen', '>', new Date(Date.now() - 5 * 60 * 1000)) // Active in last 5 minutes
+            );
+
+            unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
+                const users = [];
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    if (user.userId !== currentUser.uid) {
+                        users.push(user);
+                    }
+                });
+                displayOnlineUsers(users);
+            });
+        }
+
+        function displayOnlineUsers(users) {
+            const usersList = document.getElementById('online-users-list');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = `
+                    <div style="text-align: center; color: #666; grid-column: 1 / -1;">
+                        <p>👤 You're the first one here!</p>
+                        <p>Invite others to join the conversation</p>
+                    </div>
+                `;
+                return;
+            }
+
+            usersList.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <img src="${user.userPhoto || 'https://via.placeholder.com/50x50/ff6b9d/white?text=' + (user.userName ? user.userName.charAt(0) : '?')}" 
+                         alt="${user.userName}" 
+                         class="user-avatar-small">
+                    <div class="user-name-small">${user.userName || 'Anonymous'}</div>
+                </div>
+            `).join('');
+        }
+
+        window.handleKeyPress = function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        }
+
+        window.sendChatMessage = async function() {
+            const chatInput = document.getElementById('chat-input');
+            const content = chatInput.value.trim();
+            
+            if (!content || !currentRoom) return;
+
+            try {
+                await addDoc(collection(db, 'chatMessages'), {
+                    room: currentRoom.id,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'Anonymous',
+                    userPhoto: currentUser.photoURL || '',
+                    content: content,
+                    timestamp: new Date().toISOString()
+                });
+
+                chatInput.value = '';
+                
+                // Update user's last seen time
+                await addDoc(collection(db, 'chatRooms'), {
+                    room: currentRoom.id,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'Anonymous',
+                    userPhoto: currentUser.photoURL || '',
+                    lastSeen: new Date().toISOString()
+                });
+
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Please try again.');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                if (currentUser) {
+                    loadRoomUsers();
+                    // Refresh room user counts every 30 seconds
+                    setInterval(loadRoomUsers, 30000);
+                }
+            }, 1000);
+        });
+
+        // Background music handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            
+            function playMusic() {
+                if (music) {
+                    music.volume = 0.3;
+                    music.play().then(() => {
+                        console.log('Background music started playing');
+                    }).catch(error => {
+                        console.log('Could not autoplay audio:', error);
+                        document.addEventListener('click', function playOnClick() {
+                            music.play().then(() => {
+                                console.log('Background music started after user click');
+                                document.removeEventListener('click', playOnClick);
+                            }).catch(err => console.log('Still could not play audio:', err));
+                        }, { once: true });
+                    });
+                }
+            }
+            
+            playMusic();
+        });
+    </script>
+</body>
+</html>
