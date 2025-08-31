@@ -39,7 +39,6 @@ class AuthManager {
     updateUI() {
         const authButtons = document.getElementById('auth-buttons');
         const userInfo = document.getElementById('user-info');
-        const protectedContent = document.querySelectorAll('.protected-content');
 
         if (this.currentUser) {
             // User is signed in
@@ -55,24 +54,10 @@ class AuthManager {
                     </div>
                 `;
             }
-            protectedContent.forEach(el => el.style.display = 'block');
-            
-            // Redirect to dashboard if on login/signup pages
-            if (window.location.pathname.includes('login.html') || 
-                window.location.pathname.includes('signup.html')) {
-                window.location.href = 'dashboard.html';
-            }
         } else {
             // User is signed out
             if (authButtons) authButtons.style.display = 'block';
             if (userInfo) userInfo.style.display = 'none';
-            protectedContent.forEach(el => el.style.display = 'none');
-            
-            // Redirect to login if trying to access protected pages
-            const protectedPages = ['dashboard.html', 'profile.html'];
-            if (protectedPages.some(page => window.location.pathname.includes(page))) {
-                window.location.href = 'login.html';
-            }
         }
     }
 
