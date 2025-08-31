@@ -133,6 +133,7 @@
           <a href="memory-book.html" class="feature-btn">📖 Memory Book</a>
           <button onclick="openTrackingDashboard()" class="feature-btn">📊 Response Tracker</button>
           <button onclick="showCountdownDemo()" class="feature-btn">⏰ Countdown Timer</button>
+          <button onclick="showEmojiDemo()" class="feature-btn">😍 Emoji Reactions</button>
         </div>
       </div>
 
@@ -368,6 +369,26 @@
           demoSection.style.display = 'none';
           // Clear all countdowns
           window.countdownSystem.clearAllCountdowns();
+        }
+      };
+
+      // Emoji Reactions Demo Function
+      window.showEmojiDemo = function() {
+        // Create celebration mode
+        if (window.emojiReactionSystem) {
+          window.emojiReactionSystem.celebrationMode();
+          
+          // Show demo message
+          showThemeToast('💕 Double-click anywhere for love reactions! 😍');
+          
+          // Add reaction button to the demo button itself
+          const demoButton = event.target;
+          if (demoButton && !demoButton.querySelector('.emoji-reaction-container')) {
+            setTimeout(() => {
+              window.emojiReactionSystem.addReactionButton(demoButton.parentNode, 
+                ['love', 'heart_eyes', 'kiss', 'heart', 'party', 'sparkles']);
+            }, 1000);
+          }
         }
       };
 
@@ -739,6 +760,8 @@ ${recentActivity}⏰ Dashboard Accessed: ${new Date().toLocaleString('en-US', {
     <script src="./js/confetti.js"></script>
     <!-- Countdown Timer System -->
     <script src="./js/countdown.js"></script>
+    <!-- Emoji Reaction System -->
+    <script src="./js/emoji-reactions.js"></script>
 
     <!-- Firebase Authentication Integration -->
     <script type="module">
