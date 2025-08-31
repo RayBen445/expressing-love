@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Compatibility Quiz</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <div class="container">
+        <h1>💕 Love Compatibility Quiz 💕</h1>
+        <p>Discover how compatible you are with your special someone!</p>
+
+        <div id="quiz-container">
+            <div class="quiz-question active" id="question-1">
+                <h3>🌟 What's your ideal date?</h3>
+                <div class="quiz-options">
+                    <button onclick="selectAnswer(1, 'romantic')" class="quiz-option">🌹 Romantic dinner</button>
+                    <button onclick="selectAnswer(1, 'adventure')" class="quiz-option">🏔️ Outdoor adventure</button>
+                    <button onclick="selectAnswer(1, 'cozy')" class="quiz-option">🏠 Cozy movie night</button>
+                    <button onclick="selectAnswer(1, 'cultural')" class="quiz-option">🎭 Cultural event</button>
+                </div>
+            </div>
+
+            <div class="quiz-question" id="question-2">
+                <h3>💖 How do you express love?</h3>
+                <div class="quiz-options">
+                    <button onclick="selectAnswer(2, 'words')" class="quiz-option">💬 Words of affirmation</button>
+                    <button onclick="selectAnswer(2, 'touch')" class="quiz-option">🤗 Physical touch</button>
+                    <button onclick="selectAnswer(2, 'gifts')" class="quiz-option">🎁 Giving gifts</button>
+                    <button onclick="selectAnswer(2, 'time')" class="quiz-option">⏰ Quality time</button>
+                </div>
+            </div>
+
+            <div class="quiz-question" id="question-3">
+                <h3>🎵 Your love song would be?</h3>
+                <div class="quiz-options">
+                    <button onclick="selectAnswer(3, 'classic')" class="quiz-option">🎼 Classic romantic ballad</button>
+                    <button onclick="selectAnswer(3, 'modern')" class="quiz-option">🎤 Modern pop love song</button>
+                    <button onclick="selectAnswer(3, 'jazz')" class="quiz-option">🎷 Smooth jazz</button>
+                    <button onclick="selectAnswer(3, 'acoustic')" class="quiz-option">🎸 Acoustic serenade</button>
+                </div>
+            </div>
+
+            <div class="quiz-question" id="question-4">
+                <h3>🌍 Dream destination together?</h3>
+                <div class="quiz-options">
+                    <button onclick="selectAnswer(4, 'beach')" class="quiz-option">🏖️ Tropical beach</button>
+                    <button onclick="selectAnswer(4, 'city')" class="quiz-option">🏙️ Romantic city</button>
+                    <button onclick="selectAnswer(4, 'mountains')" class="quiz-option">⛰️ Mountain retreat</button>
+                    <button onclick="selectAnswer(4, 'countryside')" class="quiz-option">🌾 Peaceful countryside</button>
+                </div>
+            </div>
+
+            <div class="quiz-question" id="question-5">
+                <h3>💝 What makes your heart flutter?</h3>
+                <div class="quiz-options">
+                    <button onclick="selectAnswer(5, 'surprise')" class="quiz-option">🎉 Sweet surprises</button>
+                    <button onclick="selectAnswer(5, 'laugh')" class="quiz-option">😂 Making each other laugh</button>
+                    <button onclick="selectAnswer(5, 'deep')" class="quiz-option">💭 Deep conversations</button>
+                    <button onclick="selectAnswer(5, 'adventure')" class="quiz-option">🚀 Shared adventures</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-result" class="quiz-result" style="display: none;">
+            <h2>💕 Your Compatibility Score 💕</h2>
+            <div id="score-display"></div>
+            <div id="compatibility-message"></div>
+            <button onclick="restartQuiz()" class="quiz-option">🔄 Take Quiz Again</button>
+            <button onclick="window.location.href='index.html'" class="quiz-option">💌 Back to Love Confession</button>
+        </div>
+    </div>
+
+    <script>
+        const answers = {};
+        let currentQuestion = 1;
+
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        function selectAnswer(questionNum, answer) {
+            answers[questionNum] = answer;
+            
+            // Hide current question
+            document.getElementById(`question-${questionNum}`).classList.remove('active');
+            
+            if (questionNum < 5) {
+                // Show next question
+                setTimeout(() => {
+                    document.getElementById(`question-${questionNum + 1}`).classList.add('active');
+                }, 300);
+            } else {
+                // Show results
+                setTimeout(() => {
+                    showResults();
+                }, 300);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+
+            const score = calculateCompatibility();
+            const scoreDisplay = document.getElementById('score-display');
+            const messageDiv = document.getElementById('compatibility-message');
+
+            // Animated score display
+            let currentScore = 0;
+            const targetScore = score;
+            const increment = Math.ceil(targetScore / 30);
+            
+            const scoreAnimation = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= targetScore) {
+                    currentScore = targetScore;
+                    clearInterval(scoreAnimation);
+                }
+                scoreDisplay.innerHTML = `<div class="score-circle">${currentScore}%</div>`;
+            }, 50);
+
+            // Compatibility message
+            let message = '';
+            let emoji = '';
+            if (score >= 90) {
+                message = "Perfect Match! You two are soulmates! 💕✨";
+                emoji = "🔥💖🔥";
+            } else if (score >= 80) {
+                message = "Excellent Compatibility! Love is definitely in the air! 💖";
+                emoji = "✨💕✨";
+            } else if (score >= 70) {
+                message = "Great Potential! You make a wonderful pair! 💗";
+                emoji = "🌟💝🌟";
+            } else if (score >= 60) {
+                message = "Good Match! With some understanding, love will bloom! 🌹";
+                emoji = "💐🌺💐";
+            } else {
+                message = "Different Paths! Sometimes opposites attract! 💙";
+                emoji = "🌈💜🌈";
+            }
+
+            setTimeout(() => {
+                messageDiv.innerHTML = `
+                    <div class="compatibility-text">
+                        <div class="emoji-display">${emoji}</div>
+                        <p>${message}</p>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        function calculateCompatibility() {
+            // Simple compatibility algorithm based on answer combinations
+            const combinations = {
+                'romantic-words-classic-city-surprise': 95,
+                'adventure-touch-modern-mountains-adventure': 90,
+                'cozy-time-acoustic-countryside-deep': 88,
+                'cultural-gifts-jazz-beach-laugh': 85
+            };
+
+            const answerString = Object.values(answers).join('-');
+            
+            // Check for exact matches
+            if (combinations[answerString]) {
+                return combinations[answerString];
+            }
+
+            // Calculate based on individual preferences
+            let score = 60; // Base score
+            
+            // Add points for compatible combinations
+            if (answers[1] === 'romantic' && answers[3] === 'classic') score += 10;
+            if (answers[2] === 'touch' && answers[5] === 'surprise') score += 8;
+            if (answers[1] === 'cozy' && answers[2] === 'time') score += 12;
+            if (answers[4] === 'city' && answers[3] === 'jazz') score += 7;
+            if (answers[5] === 'laugh' && answers[1] === 'adventure') score += 9;
+
+            return Math.min(score, 100); // Cap at 100%
+        }
+
+        function restartQuiz() {
+            // Reset everything
+            Object.keys(answers).forEach(key => delete answers[key]);
+            document.getElementById('quiz-result').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            
+            // Hide all questions
+            document.querySelectorAll('.quiz-question').forEach(q => q.classList.remove('active'));
+            
+            // Show first question
+            document.getElementById('question-1').classList.add('active');
+        }
+
+        // Initialize the quiz
+        document.addEventListener('DOMContentLoaded', function() {
+            createFloatingHearts();
+        });
+    </script>
+
+    <style>
+        .quiz-question {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .quiz-question.active {
+            display: block;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quiz-option {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-family: sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-option:hover {
+            background: #ff9999;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .quiz-result {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px auto;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .emoji-display {
+            font-size: 32px;
+            margin: 20px 0;
+        }
+
+        .compatibility-text {
+            margin: 20px 0;
+        }
+
+        .compatibility-text p {
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            .score-circle {
+                width: 120px;
+                height: 120px;
+                font-size: 28px;
+            }
+        }
+    </style>
+</body>
+</html>
