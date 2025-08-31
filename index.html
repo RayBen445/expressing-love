@@ -59,7 +59,30 @@
         
         const botToken = '7723720692:AAEPmC39DWtRqL5BtR0ataTaKn4PF0HoCJs';
         const chatId = '6649936329';
-        const message = `💕 ${userName} (📱 ${userPhone}) answered: ${answer}`;
+        // Create a beautifully designed Telegram message
+        const message = answer === 'Yes' 
+          ? `💝✨ LOVE CONFESSION ALERT! ✨💝
+
+🌹 ${userName} has responded to your love confession! 🌹
+📱 Contact: ${userPhone}
+
+💖 ANSWER: ${answer.toUpperCase()}! 💖
+
+🥰 Someone special is ready to be yours! 
+💕 Time to celebrate love! 🎉
+
+#LoveWins #Romance #ExpressingLove`
+          : `💔 Love Confession Response 💔
+
+🌸 ${userName} has responded to your love confession
+📱 Contact: ${userPhone}
+
+💙 ANSWER: ${answer} 💙
+
+💪 Don't give up! Love takes time and patience ⏰
+🌈 Keep spreading love and positivity! ✨
+
+#LoveJourney #StayPositive #ExpressingLove`;
         
         try {
           const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
