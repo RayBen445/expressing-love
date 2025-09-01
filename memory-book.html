@@ -10,7 +10,10 @@
     <!-- Animated floating hearts background -->
     <div class="hearts-container" id="hearts-container"></div>
 
-    <div class="container">
+    <!-- Back to Home Button -->
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
+
+    <div class="container protected-content">
         <h1>📖 Love Memory Book 📖</h1>
         <p>Create beautiful memories of your love journey!</p>
 
@@ -72,6 +75,9 @@
 
         function createFloatingHearts() {
             const heartsContainer = document.getElementById('hearts-container');
+
+    <!-- Back to Home Button -->
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
             const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
             
             setInterval(() => {
@@ -560,5 +566,10 @@ ${photoInfo}
             }
         }
     </style>
+
+    <!-- Firebase and Authentication -->
+    <script type="module">
+        import './js/auth-guard.js';
+    </script>
 </body>
 </html>

@@ -16,8 +16,7 @@ class AuthGuard {
             'no1.html',
             'no2.html', 
             'no3.html',
-            'yes.html',
-            'memory-book.html'
+            'yes.html'
         ];
         this.protectedPages = [
             'dashboard.html',
@@ -29,7 +28,15 @@ class AuthGuard {
             'voice-messages.html',
             'date-calculator.html',
             'confession.html',
-            'confessions.html'
+            'confessions.html',
+            'memory-book.html',
+            'users.html',
+            'messages.html',
+            'admin.html',
+            'chat.html',
+            'polls.html',
+            'bucket-list.html',
+            'date-planner.html'
         ];
         
         this.init();

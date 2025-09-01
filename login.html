@@ -47,8 +47,35 @@
             </button>
 
             <div class="auth-links">
+                <p><a href="#" onclick="showForgotPassword()">Forgot your password?</a></p>
                 <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
                 <a href="index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeForgotPassword()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔑 Reset Password</h3>
+                <button onclick="closeForgotPassword()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Enter your email address and we'll send you a link to reset your password.</p>
+                
+                <div id="reset-message" class="auth-message"></div>
+                
+                <form id="reset-form">
+                    <div class="form-group">
+                        <input type="email" id="reset-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="auth-btn primary">Send Reset Link</button>
+                        <button type="button" onclick="closeForgotPassword()" class="auth-btn" style="background: #ccc;">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -129,7 +156,70 @@
         document.addEventListener('DOMContentLoaded', () => {
             createFloatingHearts();
             document.getElementById('login-form').addEventListener('submit', handleLogin);
+            
+            // Add password reset form handler
+            const resetForm = document.getElementById('reset-form');
+            if (resetForm) {
+                resetForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('reset-email').value;
+                    const messageEl = document.getElementById('reset-message');
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    
+                    // Show loading state
+                    submitBtn.textContent = 'Sending...';
+                    submitBtn.disabled = true;
+                    
+                    // Hide any existing messages
+                    messageEl.style.display = 'none';
+                    
+                    try {
+                        const result = await authManager.resetPassword(email);
+                        
+                        if (result.success) {
+                            messageEl.textContent = result.message;
+                            messageEl.className = 'auth-message success';
+                            messageEl.style.display = 'block';
+                            
+                            setTimeout(() => {
+                                closeForgotPassword();
+                            }, 2000);
+                        } else {
+                            messageEl.textContent = result.error;
+                            messageEl.className = 'auth-message error';
+                            messageEl.style.display = 'block';
+                        }
+                    } catch (error) {
+                        messageEl.textContent = 'An unexpected error occurred';
+                        messageEl.className = 'auth-message error';
+                        messageEl.style.display = 'block';
+                    } finally {
+                        submitBtn.textContent = 'Send Reset Link';
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
         });
+    </script>
+
+    <!-- Global functions for modal -->
+    <script>
+        // Show/hide forgot password modal
+        window.showForgotPassword = function() {
+            document.getElementById('forgot-password-modal').style.display = 'flex';
+            document.getElementById('reset-email').value = '';
+            
+            // Hide any existing messages
+            const messageEl = document.getElementById('reset-message');
+            if (messageEl) {
+                messageEl.style.display = 'none';
+            }
+        };
+
+        window.closeForgotPassword = function() {
+            document.getElementById('forgot-password-modal').style.display = 'none';
+        };
     </script>
 
     <script>

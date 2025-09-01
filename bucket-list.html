@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Couple's Bucket List - Expressing Love</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <style>
+        .bucket-list-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        .bucket-list-header {
+            text-align: center;
+            margin: 80px 0 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-item-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color, #ff6b9d);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.2);
+        }
+
+        .category-select {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .category-btn:hover {
+            border-color: var(--primary-color, #ff6b9d);
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        .category-btn.selected {
+            border-color: var(--primary-color, #ff6b9d);
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+        }
+
+        .add-item-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .add-item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3);
+        }
+
+        .bucket-list-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-tab:hover {
+            border-color: var(--primary-color, #ff6b9d);
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        .filter-tab.active {
+            border-color: var(--primary-color, #ff6b9d);
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+        }
+
+        .bucket-list-items {
+            display: grid;
+            gap: 15px;
+        }
+
+        .bucket-item {
+            background: linear-gradient(135deg, #ffeef8, #fff5f8);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bucket-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .bucket-item.completed {
+            background: linear-gradient(135deg, #c8e6c9, #e8f5e8);
+            border-color: #4caf50;
+            opacity: 0.8;
+        }
+
+        .bucket-item.completed .item-text {
+            text-decoration: line-through;
+        }
+
+        .complete-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-color, #ff6b9d);
+            cursor: pointer;
+        }
+
+        .item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .item-category {
+            display: inline-block;
+            background: var(--primary-color, #ff6b9d);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .item-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.1);
+            background: #ff5252;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 15px;
+            background: linear-gradient(135deg, #ffeef8, #fff5f8);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color, #ff6b9d);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .bucket-list-container {
+                padding: 15px;
+            }
+            
+            .back-home {
+                position: relative;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .category-select {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .bucket-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="backgroundMusic" autoplay loop preload="auto" style="display: none;">
+        <source src="https://files.catbox.moe/4vb6xe.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Animated floating hearts background -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
+
+    <div class="bucket-list-container">
+        <div class="bucket-list-header">
+            <h1>📝 Couple's Bucket List</h1>
+            <p>Plan your future together and track your romantic adventures</p>
+        </div>
+
+        <div class="stats-section">
+            <h3>📊 Your Progress</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-items">0</div>
+                    <div class="stat-label">Total Dreams</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completed-items">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completion-rate">0%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="add-item-section">
+            <h3>✨ Add New Dream</h3>
+            <form id="add-item-form">
+                <div class="form-group">
+                    <label for="item-text">💭 What's your relationship goal?</label>
+                    <input type="text" id="item-text" class="form-input" 
+                           placeholder="e.g., Travel to Paris together" required>
+                </div>
+
+                <div class="form-group">
+                    <label>🎯 Category</label>
+                    <div class="category-select" id="category-select">
+                        <button type="button" class="category-btn" onclick="selectCategory('travel', this)">✈️ Travel</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('adventure', this)">🏔️ Adventure</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('romantic', this)">💕 Romantic</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('food', this)">🍽️ Food</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('learning', this)">📚 Learning</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('milestone', this)">🏆 Milestone</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('fun', this)">🎉 Fun</button>
+                        <button type="button" class="category-btn" onclick="selectCategory('other', this)">🌟 Other</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="add-item-btn">
+                    ➕ Add to Bucket List
+                </button>
+            </form>
+        </div>
+
+        <div class="bucket-list-section">
+            <h3>🎯 Your Bucket List</h3>
+            
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterItems('all')">🌟 All</button>
+                <button class="filter-tab" onclick="filterItems('pending')">⏳ Pending</button>
+                <button class="filter-tab" onclick="filterItems('completed')">✅ Completed</button>
+                <button class="filter-tab" onclick="filterItems('travel')">✈️ Travel</button>
+                <button class="filter-tab" onclick="filterItems('romantic')">💕 Romantic</button>
+                <button class="filter-tab" onclick="filterItems('adventure')">🏔️ Adventure</button>
+            </div>
+
+            <div class="bucket-list-items" id="bucket-list-items">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <h4>📝 Loading your bucket list...</h4>
+                    <p>Getting your relationship goals</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/auth-guard.js';
+        import authManager from './js/auth.js';
+        import { db, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, orderBy, onSnapshot } from './js/firebase-config.js';
+
+        let currentUser = null;
+        let selectedCategory = 'romantic';
+        let allItems = [];
+        let currentFilter = 'all';
+
+        // Create floating hearts animation
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            const hearts = ['💖', '💕', '💗', '💘', '💝', '💜', '❤️', '🧡', '💛', '💚', '💙'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, 10000);
+            }, 500);
+        }
+
+        window.selectCategory = function(category, button) {
+            selectedCategory = category;
+            
+            // Update UI
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+        }
+
+        async function addBucketListItem(event) {
+            event.preventDefault();
+            
+            const text = document.getElementById('item-text').value.trim();
+            
+            if (!text) {
+                alert('Please enter a bucket list item');
+                return;
+            }
+
+            if (!selectedCategory) {
+                alert('Please select a category');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'bucketList'), {
+                    text: text,
+                    category: selectedCategory,
+                    completed: false,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'Anonymous',
+                    createdAt: new Date().toISOString(),
+                    completedAt: null
+                });
+
+                // Reset form
+                document.getElementById('add-item-form').reset();
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+                selectedCategory = 'romantic';
+
+                alert('Added to your bucket list! 🎯');
+            } catch (error) {
+                console.error('Error adding bucket list item:', error);
+                alert('Failed to add item. Please try again.');
+            }
+        }
+
+        async function loadBucketListItems() {
+            const itemsQuery = query(
+                collection(db, 'bucketList'),
+                where('userId', '==', currentUser.uid),
+                orderBy('createdAt', 'desc')
+            );
+
+            onSnapshot(itemsQuery, (snapshot) => {
+                allItems = [];
+                snapshot.forEach(doc => {
+                    allItems.push({ id: doc.id, ...doc.data() });
+                });
+                displayItems();
+                updateStats();
+            });
+        }
+
+        function displayItems() {
+            const container = document.getElementById('bucket-list-items');
+            let itemsToShow = allItems;
+
+            // Apply filters
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'pending') {
+                    itemsToShow = allItems.filter(item => !item.completed);
+                } else if (currentFilter === 'completed') {
+                    itemsToShow = allItems.filter(item => item.completed);
+                } else {
+                    itemsToShow = allItems.filter(item => item.category === currentFilter);
+                }
+            }
+            
+            if (itemsToShow.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <h4>📝 No items found</h4>
+                        <p>Start adding your relationship goals and dreams!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const categoryEmojis = {
+                travel: '✈️',
+                adventure: '🏔️',
+                romantic: '💕',
+                food: '🍽️',
+                learning: '📚',
+                milestone: '🏆',
+                fun: '🎉',
+                other: '🌟'
+            };
+
+            container.innerHTML = itemsToShow.map(item => {
+                const itemDate = new Date(item.createdAt).toLocaleDateString();
+                const completedDate = item.completedAt ? new Date(item.completedAt).toLocaleDateString() : null;
+                
+                return `
+                    <div class="bucket-item ${item.completed ? 'completed' : ''}">
+                        <input type="checkbox" class="complete-checkbox" 
+                               ${item.completed ? 'checked' : ''} 
+                               onchange="toggleComplete('${item.id}', this.checked)">
+                        
+                        <div class="item-content">
+                            <div class="item-text">${item.text}</div>
+                            <div style="margin-top: 8px;">
+                                <span class="item-category">${categoryEmojis[item.category] || '🌟'} ${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+                                <span class="item-date">📅 Added: ${itemDate}</span>
+                                ${completedDate ? `<span class="item-date"> | ✅ Completed: ${completedDate}</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <button class="delete-btn" onclick="deleteItem('${item.id}')" title="Delete item">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.filterItems = function(filter) {
+            currentFilter = filter;
+            
+            // Update UI
+            document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayItems();
+        }
+
+        window.toggleComplete = async function(itemId, completed) {
+            try {
+                const itemRef = doc(db, 'bucketList', itemId);
+                const updateData = {
+                    completed: completed,
+                    completedAt: completed ? new Date().toISOString() : null
+                };
+                
+                await updateDoc(itemRef, updateData);
+                
+                if (completed) {
+                    // Trigger confetti for completion
+                    if (window.triggerConfetti) {
+                        window.triggerConfetti();
+                    }
+                    alert('Congratulations! 🎉 Dream completed!');
+                }
+            } catch (error) {
+                console.error('Error updating item:', error);
+                alert('Failed to update item. Please try again.');
+            }
+        }
+
+        window.deleteItem = async function(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'bucketList', itemId));
+                alert('Item deleted successfully');
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                alert('Failed to delete item. Please try again.');
+            }
+        }
+
+        function updateStats() {
+            const totalItems = allItems.length;
+            const completedItems = allItems.filter(item => item.completed).length;
+            const completionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+            document.getElementById('total-items').textContent = totalItems;
+            document.getElementById('completed-items').textContent = completedItems;
+            document.getElementById('completion-rate').textContent = completionRate + '%';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            
+            setTimeout(() => {
+                currentUser = authManager.currentUser;
+                if (currentUser) {
+                    loadBucketListItems();
+                    
+                    // Select default category
+                    document.querySelector('.category-btn').classList.add('selected');
+                }
+            }, 1000);
+
+            // Setup form submission
+            document.getElementById('add-item-form').addEventListener('submit', addBucketListItem);
+        });
+
+        // Background music handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('backgroundMusic');
+            
+            function playMusic() {
+                if (music) {
+                    music.volume = 0.3;
+                    music.play().then(() => {
+                        console.log('Background music started playing');
+                    }).catch(error => {
+                        console.log('Could not autoplay audio:', error);
+                        document.addEventListener('click', function playOnClick() {
+                            music.play().then(() => {
+                                console.log('Background music started after user click');
+                                document.removeEventListener('click', playOnClick);
+                            }).catch(err => console.log('Still could not play audio:', err));
+                        }, { once: true });
+                    });
+                }
+            }
+            
+            playMusic();
+        });
+
+        // Load confetti script if available
+        const confettiScript = document.createElement('script');
+        confettiScript.src = './js/confetti.js';
+        confettiScript.type = 'module';
+        document.head.appendChild(confettiScript);
+    </script>
+</body>
+</html>

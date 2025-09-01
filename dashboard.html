@@ -18,6 +18,9 @@
     <!-- Animated floating hearts background -->
     <div class="hearts-container" id="hearts-container"></div>
 
+    <!-- Back to Home Button -->
+    <a href="index.html" class="back-home" style="position: fixed; top: 20px; left: 20px; background: var(--primary-color, #ff6b9d); color: white; text-decoration: none; padding: 10px 20px; border-radius: 25px; font-weight: 500; transition: all 0.3s ease; z-index: 1000; box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);">🏠 Back to Home</a>
+
     <!-- Navigation Header -->
     <nav class="dashboard-nav">
         <div class="nav-content">
@@ -75,6 +78,14 @@
                             <div class="feature-icon">💕</div>
                             <span>Compatibility Quiz</span>
                         </a>
+                        <a href="users.html" class="feature-link">
+                            <div class="feature-icon">👥</div>
+                            <span>Discover Users</span>
+                        </a>
+                        <a href="messages.html" class="feature-link">
+                            <div class="feature-icon">💬</div>
+                            <span>Messages</span>
+                        </a>
                         <a href="memory-book.html" class="feature-link">
                             <div class="feature-icon">📖</div>
                             <span>Memory Book</span>
@@ -90,6 +101,11 @@
                         <a href="reminders.html" class="feature-link">
                             <div class="feature-icon">🔔</div>
                             <span>Reminders</span>
+                        </a>
+                        <!-- Admin Panel Link (only visible to admin) -->
+                        <a href="admin.html" class="feature-link" id="admin-link" style="display: none;">
+                            <div class="feature-icon">⚙️</div>
+                            <span>Admin Panel</span>
                         </a>
                     </div>
                 </div>
@@ -251,6 +267,11 @@
                 
                 // Apply theme
                 applyTheme(currentTheme);
+
+                // Show admin panel link if user is admin
+                if (authManager.currentUser.email === 'oladoyeheritage445@gmail.com') {
+                    document.getElementById('admin-link').style.display = 'flex';
+                }
             }
         }
 
